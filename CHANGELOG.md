@@ -1,28 +1,21 @@
 # Changelog
 
-## 0.2.0
+## 0.2.0 — 2026-09-15
 
-- Package macOS ARM64 and Linux x64 for the regular Marketplace release channel, enabling the default Install entry after publication.
-- Cancel pending draft-update timers when stopping work, preventing updates from restarting after Cancel.
-- Make Marketplace installation the primary documented path and clarify the Select context step.
-- Retain the existing platform restrictions and Windows validation gate.
+- Use the regular Marketplace release channel for macOS ARM64 and Linux x64.
+- Clear queued draft updates when cancelling work.
+- Clarify installation and context-selection instructions.
 
-## 0.1.1 — Preview
+## 0.1.1 — Pre-release — 2026-09-15
 
-- Distribute separate pre-release packages for Apple Silicon macOS and Linux x64.
-- Set the minimum VS Code version to the validated 1.137.0.
-- Refresh installation guidance and the high-resolution example screenshot.
-- Retain Windows path and draft compatibility work and CI, with Windows use still gated pending Docker Desktop validation.
+- Add separate macOS ARM64 and Linux x64 packages.
+- Set the minimum VS Code version to 1.137.0.
+- Improve the README screenshot and installation guidance.
+- Prepare Windows path and draft compatibility while keeping Windows disabled.
 
-## 0.1.0 — Preview
+## 0.1.0 — Pre-release — 2026-09-15
 
-- Inspect one local build context with an explicitly selected Dockerfile.
-- Use Dockerfile-specific ignore precedence and pinned Moby matching.
-- Trace effective rule transitions and jump to source lines.
-- Preview unsaved ignore edits against the saved file set.
-- Search, filter, inspect logical sizes, and cancel bounded scans.
-- Include a disposable example and offline WASM runtime.
-
-- Clear stale tree state on inspection errors and safely recover on refresh.
-- Retain a right-clicked Dockerfile while selecting the build context.
-- Prepare a Preview VSIX and checksum for GitHub Releases.
+- Inspect context files and explain effective ignore rules, including Dockerfile-specific overrides.
+- Preview unsaved changes with file-set and logical-size comparisons.
+- Add search, filters, bounded scans, cancellation, and a disposable example.
+- Recover safely from inspection errors and retain right-clicked Dockerfile selections.

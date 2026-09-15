@@ -1,4 +1,16 @@
-# Three reproducible investigations
+# Usage guide
+
+## Controls
+
+Use **Select context** to choose the context directory and Dockerfile separately. Right-clicking a Dockerfile and choosing **Dockerignore: Inspect Build Context** retains that file while asking for the context. **Select Dockerfile** changes the Dockerfile within the selected context; **Edit rules** opens the active ignore file.
+
+Search uses relative paths. Filters show included, excluded, or draft-changed entries. Double-click a directory to collapse or expand it; use Up/Down to select and Left/Right to collapse or expand. Home and End select the first and last visible entries. Draft changes use Previous/Next pagination. Known in 0.2.0: the first Down Arrow with no selection skips the first row, and multiple pending explanations for the same file can duplicate the displayed rules.
+
+**Refresh** rescans filesystem changes, including file sizes. Edits to an open active ignore document update the draft automatically; changes made outside the workspace may need Refresh. **Cancel** stops current and queued work; any previous results remain explicitly stale until refreshed.
+
+The default scan limit is 100,000 entries, configurable through `dockerignore.maxEntries`. Limit hits and unreadable entries produce partial results. Invalid rules suppress totals and comparison until corrected. The rule trace shows effective changes, not redundant rules that leave the state unchanged.
+
+Dockerfiles and active ignore files may still be read by Docker as build inputs when excluded from ordinary COPY access. Their displayed inclusion state does not model an entire build.
 
 ## Root rules appear to do nothing
 

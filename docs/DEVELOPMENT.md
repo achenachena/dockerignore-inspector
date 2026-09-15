@@ -8,11 +8,25 @@ Enumeration is reused for draft recalculation. New work aborts scanning, termina
 
 The Go adapter retains line mappings while using upstream ignore parsing. A standalone `.` rule is ignored, matching Docker's documented historical behavior. Final states use `MatchesOrParentMatches`; explanations evaluate rule prefixes on demand and record only state changes. No private Moby API is used.
 
-The runtime includes WASM and the matching Go distribution's `wasm_exec.js`. End users need no compiler. Windows is blocked because WASM uses slash-oriented path semantics and native Windows behavior has not been validated.
+The runtime includes WASM and the matching Go distribution's `wasm_exec.js`. End users need no compiler. Windows compatibility is exercised in CI, but normal Windows use remains gated pending Windows 10/11 with Docker Desktop Linux-container validation. See [WINDOWS.md](WINDOWS.md).
 
 ## Build and debug
 
-Install Node.js 22+ and Go 1.24+, then run the README commands. The Go build is part of `npm run build`. Development caches on macOS default to temporary directories; standard Go caches are used on other hosts.
+Install Node.js 22+, Go 1.24+, and VS Code Desktop 1.137.0+.
+
+```sh
+npm ci
+npm run build
+npm run lint
+npm run typecheck
+npm test
+npm run test:engine
+npm run test:docker
+npm run package
+npm run test:integration
+```
+
+Docker is needed only for `test:docker`; ordinary extension use does not need it. The Go build is part of `npm run build`. Development caches on macOS default to temporary directories; standard Go caches are used on other hosts.
 
 Launch VS Code with `--extensionDevelopmentPath` pointing to this repository for development. Final acceptance must use the generated VSIX, not only development loading.
 
@@ -24,4 +38,6 @@ Launch VS Code with `--extensionDevelopmentPath` pointing to this repository for
 
 Filename and rule strings are never inserted as HTML. Webview scripts cannot read arbitrary paths. File-open requests must identify a scanned regular file whose resolved path stays inside the selected context. Rule jumps are limited to the active ignore file. The selected Dockerfile may be outside the context by explicit selection.
 
-This is a preview, not a hardened filesystem sandbox against adversarial concurrent filesystem mutation. Refresh after files change. Unknown metadata and unsupported special entries cannot be interpreted as excluded files.
+The extension is not a hardened filesystem sandbox against adversarial concurrent filesystem mutation. Refresh after files change. Unknown metadata and unsupported special entries cannot be interpreted as excluded files.
+
+See [validation records](VALIDATION.md) for executed checks and [release maintenance](RELEASING.md) for packaging and publication.
