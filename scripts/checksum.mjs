@@ -1,8 +1,11 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
-const name = "dockerignore-inspector-0.1.0.vsix";
-const digest = createHash("sha256")
-  .update(await readFile(`dist/${name}`))
-  .digest("hex");
-await writeFile("dist/SHA256SUMS", `${digest}  ${name}\n`);
-console.log(`${digest}  ${name}`);
+import path from "node:path";
+const files = process.argv.slice(2);
+if (!files.length) throw new Error("Pass the exact VSIX files to checksum.");
+const lines = await Promise.all(files.map(async (file) => {
+  const digest = createHash("sha256").update(await readFile(file)).digest("hex");
+  return `${digest}  ${path.basename(file)}\n`;
+}));
+await writeFile(path.join(path.dirname(files[0]), "SHA256SUMS"), lines.join(""));
+console.log(lines.join(""));

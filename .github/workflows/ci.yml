@@ -70,16 +70,15 @@ jobs:
         with:
           name: windows-context-results
           path: dist/windows-context.json
-      - run: npm run package
+      - run: npm run package -- win32-x64
+        env:
+          INSPECTOR_WINDOWS_VALIDATION: "1"
       - run: npm run test:integration
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: windows-preview-validation
-          path: |
-            dist/*.vsix
-            dist/SHA256SUMS
-            .test-work/integration-result.json
+          path: .test-work/integration-result.json
 
   compare-contexts:
     needs: [validate, windows]

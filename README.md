@@ -2,6 +2,8 @@
 
 See which files your Docker build context includes, why their state changes, and what happens as you edit `.dockerignore`.
 
+**Preview support: Apple Silicon macOS (`darwin-arm64`) and glibc Linux x64 (`linux-x64`), VS Code Desktop 1.137.0+. Trusted local workspaces only.** Windows is still being validated and is not enabled; no release date is promised. WSL, Remote SSH, Dev Containers, and VS Code Web are unsupported. Sizes are logical file sizes, not transfer or image sizes.
+
 A local VS Code Desktop extension for debugging ignore rules. No Docker daemon, account, Go installation, network connection, or API key is needed to inspect a directory.
 
 ![Draft preview showing assets/logo.svg excluded by line 4, with one fewer included file and a 123-byte decrease](docs/images/preview-detail.png)
@@ -12,15 +14,18 @@ A local VS Code Desktop extension for debugging ignore rules. No Docker daemon, 
 
 ## Install the preview
 
-[Download the Preview VSIX](https://github.com/achenachena/dockerignore-inspector/releases/download/v0.1.0/dockerignore-inspector-0.1.0.vsix) · [Release notes and checksum](https://github.com/achenachena/dockerignore-inspector/releases/tag/v0.1.0)
+Download the package for your platform from [GitHub Releases](https://github.com/achenachena/dockerignore-inspector/releases). For version 0.1.1, choose:
 
-Supports trusted local VS Code Desktop workspaces on macOS and Linux. Windows compatibility is under validation and remains gated; see [Windows validation and remaining requirements](docs/WINDOWS.md). Marketplace publication is pending.
+| Platform | Package |
+| --- | --- |
+| macOS, Apple Silicon | `dockerignore-inspector-0.1.1-darwin-arm64.vsix` |
+| Linux, x64 (glibc) | `dockerignore-inspector-0.1.1-linux-x64.vsix` |
 
-1. In VS Code, run **Extensions: Install from VSIX…**.
-2. Select the VSIX, then reload if prompted.
-3. Run **Dockerignore: Open Example** to try it immediately.
+1. In VS Code **1.137.0 or later**, run **Extensions: Install from VSIX…** and select your platform's package.
+2. Reload if prompted, then run **Dockerignore: Open Example**.
+3. Remove `!` from `!assets/logo.svg` without saving, inspect the change, then undo.
 
-The extension uses publisher ID `achenachen`. Marketplace publication is still pending. If you installed the earlier `local-preview` package, uninstall it before installing this package to avoid duplicate commands.
+Publisher: `achenachen`. If you installed the earlier `local-preview` package, uninstall it to avoid duplicate commands. Marketplace users should select the **pre-release** channel when this version is available.
 
 ## Try it in three steps
 
@@ -42,7 +47,7 @@ The trace lists effective state transitions in rule order. A later redundant rul
 
 ## Support and limits
 
-- Local trusted VS Code Desktop workspaces on macOS and Linux. See [validation](docs/VALIDATION.md) for actual tested platforms; Windows, Web, remote SSH, WSL, and Dev Containers are blocked in this preview.
+- Local trusted VS Code Desktop workspaces on Apple Silicon macOS and glibc Linux x64. Intel macOS, Linux ARM, and Alpine are not validated or packaged. See [validation](docs/VALIDATION.md) for actual tested platforms; Windows, Web, remote SSH, WSL, and Dev Containers are blocked in this preview.
 - One selected context and Dockerfile at a time. No Compose/Bake parsing, remote Git contexts, named contexts, or Dockerfile execution.
 - Symlinks are listed but not followed or included in logical byte totals. Target COPY behavior is not simulated. Special filesystem entries are unknown.
 - Manual refresh discovers file changes. Active ignore edits update automatically inside the workspace; use Refresh for external-context changes.

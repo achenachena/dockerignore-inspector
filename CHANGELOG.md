@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.1 — Preview
+
+- Distribute separate pre-release packages for Apple Silicon macOS and Linux x64.
+- Set the minimum VS Code version to the validated 1.137.0.
+- Refresh installation guidance and the high-resolution example screenshot.
+- Retain Windows path and draft compatibility work and CI, with Windows use still gated pending Docker Desktop validation.
+
 ## 0.1.0 — Preview
 
 - Inspect one local build context with an explicitly selected Dockerfile.

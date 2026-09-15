@@ -14,13 +14,14 @@ import {
 } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
+const manifest = JSON.parse(await readFile("package.json", "utf8"));
 const root = path.resolve(".test-work");
 await mkdir(root, { recursive: true });
 const executable =
   process.env.VSCODE_EXECUTABLE_PATH ||
   (process.platform === "darwin"
     ? "/Applications/Visual Studio Code.app/Contents/MacOS/Code"
-    : await downloadAndUnzipVSCode("stable"));
+    : await downloadAndUnzipVSCode(manifest.engines.vscode.slice(1)));
 const cli =
   process.env.VSCODE_CLI_PATH ||
   resolveCliPathFromVSCodeExecutablePath(executable);
@@ -35,7 +36,7 @@ await writeFile(
     name: "inspector-test-harness",
     version: "0.0.1",
     publisher: "local-test",
-    engines: { vscode: "^1.96.0" },
+    engines: { vscode: manifest.engines.vscode },
     main: "./main.cjs",
   }),
 );
@@ -71,7 +72,7 @@ execFileSync(
     "--extensions-dir",
     extensions,
     "--install-extension",
-    path.resolve("dist/dockerignore-inspector-0.1.0.vsix"),
+    path.resolve(process.env.INSPECTOR_VSIX || `dist/${manifest.name}-${manifest.version}-${process.platform}-${process.arch}.vsix`),
     "--force",
   ],
   {
