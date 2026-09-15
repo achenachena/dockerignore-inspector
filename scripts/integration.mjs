@@ -3,7 +3,15 @@ import {
   downloadAndUnzipVSCode,
   resolveCliPathFromVSCodeExecutablePath,
 } from "@vscode/test-electron";
-import { mkdir, writeFile, mkdtemp, rm } from "node:fs/promises";
+import {
+  mkdir,
+  writeFile,
+  mkdtemp,
+  rm,
+  readFile,
+  readdir,
+  access,
+} from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 const root = path.resolve(".test-work");
@@ -34,20 +42,29 @@ await writeFile(
 await writeFile(path.join(harness, "main.cjs"), "exports.activate = () => {};");
 const env = { ...process.env };
 delete env.ELECTRON_RUN_AS_NODE;
+let windowsCli;
+if (process.platform === "win32") {
+  const launcher = await readFile(cli, "utf8");
+  console.log(`Windows CLI launcher (${cli}):\n${launcher}`);
+  const scripts = [...launcher.matchAll(/"([^"\r\n]*%~dp0[^"\r\n]*\.js)"/gi)];
+  const entry = scripts.at(-1)?.[1];
+  windowsCli = entry
+    ? path.resolve(path.dirname(cli), entry.replace(/%~dp0/gi, ""))
+    : path.join(path.dirname(executable), "resources", "app", "out", "cli.js");
+  try {
+    await access(windowsCli);
+  } catch (error) {
+    console.log(
+      "VS Code root entries:",
+      await readdir(path.dirname(executable)),
+    );
+    throw error;
+  }
+}
 execFileSync(
   process.platform === "win32" ? executable : cli,
   [
-    ...(process.platform === "win32"
-      ? [
-          path.join(
-            path.dirname(executable),
-            "resources",
-            "app",
-            "out",
-            "cli.js",
-          ),
-        ]
-      : []),
+    ...(windowsCli ? [windowsCli] : []),
     "--user-data-dir",
     user,
     "--extensions-dir",
