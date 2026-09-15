@@ -142,7 +142,7 @@ test("worker termination interrupts pending work", async () => {
   await assert.rejects(pending, /Cancelled|stopped/);
 });
 
-test("active scan cancellation stops discovery and unreadable directories stay unknown", async () => {
+test("active scan cancellation stops discovery", async (t) => {
   const root = await mkdtemp(path.join(os.tmpdir(), "inspector-cancel-"));
   try {
     for (let batch = 0; batch < 6; batch++)
@@ -158,24 +158,56 @@ test("active scan cancellation stops discovery and unreadable directories stay u
     assert(result.partial);
     assert.equal(result.entries.length, 250);
     assert(result.issues.some((issue) => issue.includes("cancelled")));
-    if (process.platform === "win32") return; // POSIX mode bits do not model Windows ACLs.
-    const { chmod } = await import("node:fs/promises");
-    const locked = path.join(root, "unreadable");
-    await mkdir(locked);
-    await chmod(locked, 0);
-    try {
-      const unreadable = await scan(
-        root,
-        1000,
-        new AbortController().signal,
-        () => {},
-      );
-      assert(unreadable.partial);
-      assert(unreadable.entries.find((e) => e.path === "unreadable").error);
-    } finally {
-      await chmod(locked, 0o700);
-    }
+    await t.test(
+      "POSIX unreadable directories remain unknown",
+      {
+        skip:
+          process.platform === "win32"
+            ? "Windows ACLs require separate validation"
+            : false,
+      },
+      async () => {
+        const { chmod } = await import("node:fs/promises");
+        const locked = path.join(root, "unreadable");
+        await mkdir(locked);
+        await chmod(locked, 0);
+        try {
+          const unreadable = await scan(
+            root,
+            1000,
+            new AbortController().signal,
+            () => {},
+          );
+          assert(unreadable.partial);
+          assert(unreadable.entries.find((e) => e.path === "unreadable").error);
+        } finally {
+          await chmod(locked, 0o700);
+        }
+      },
+    );
   } finally {
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test(
+  "Windows worker suppresses results for backslash rules",
+  { skip: process.platform !== "win32" },
+  async () => {
+    const engine = new Engine(worker);
+    try {
+      const result = await engine.evaluate("assets\\*.svg", [
+        "assets/logo.svg",
+      ]);
+      assert.match(result.error, /Line 1: Backslash/);
+      assert.deepEqual(result.excluded, []);
+      const recovered = await engine.evaluate("assets/*.svg", [
+        "assets/logo.svg",
+      ]);
+      assert.equal(recovered.error, undefined);
+      assert.deepEqual(recovered.excluded, [true]);
+    } finally {
+      engine.dispose();
+    }
+  },
+);
