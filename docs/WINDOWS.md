@@ -28,7 +28,7 @@ Primary implementation references:
 
 ## Automated checks
 
-The Windows job runs on `windows-2025` with Node 22 and Go 1.24.5. It builds the WASM bundle, runs lint/type checks and tests, compares the WASM adapter with a native Go matcher, packages the VSIX, installs it into an empty extension directory and runs installed-extension integration. The CLI is launched through `Code.exe` plus `resources/app/out/cli.js` in Electron's Node mode, avoiding shell execution of `code.cmd`.
+The Windows job runs on `windows-2025` with Node 22 and Go 1.24.5. It builds the WASM bundle, runs lint/type checks and tests, compares the WASM adapter with a native Go matcher, packages the VSIX, installs it into an empty extension directory and runs installed-extension integration. The CLI is launched through `Code.exe` plus the JavaScript entry resolved from the downloaded `code.cmd` (including versioned resource directories) in Electron's Node mode, avoiding shell execution of `code.cmd`.
 
 Integration sets `INSPECTOR_WINDOWS_VALIDATION=1` only in the test process to exercise the candidate behind the release gate. It covers activation, WASM startup, example scanning, dirty edits through a directory junction, undo, invalid rules, save and successive draft updates. This is automated Extension Host testing, not manual Windows UI sign-off. POSIX chmod permission tests do not establish Windows ACL behavior.
 

@@ -45,12 +45,13 @@ delete env.ELECTRON_RUN_AS_NODE;
 let windowsCli;
 if (process.platform === "win32") {
   const launcher = await readFile(cli, "utf8");
-  console.log(`Windows CLI launcher (${cli}):\n${launcher}`);
+
   const scripts = [...launcher.matchAll(/"([^"\r\n]*%~dp0[^"\r\n]*\.js)"/gi)];
   const entry = scripts.at(-1)?.[1];
   windowsCli = entry
     ? path.resolve(path.dirname(cli), entry.replace(/%~dp0/gi, ""))
     : path.join(path.dirname(executable), "resources", "app", "out", "cli.js");
+  console.log(`Using Windows CLI entry: ${windowsCli}`);
   try {
     await access(windowsCli);
   } catch (error) {

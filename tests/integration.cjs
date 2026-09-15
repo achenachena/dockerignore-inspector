@@ -94,9 +94,14 @@ exports.run = async () => {
     );
     await vscode.workspace.applyEdit(change);
   }
+  const expectedText = document.getText();
+  assert.equal(
+    expectedText.replace(/\r\n/g, "\n"),
+    "assets/*\n!assets/logo.svg\n",
+  );
   const final = await until(() => {
     const s = api.getSnapshot();
-    return !api.isBusy() && s?.text === "assets/*\n!assets/logo.svg\n" && s;
+    return !api.isBusy() && s?.text === expectedText && s;
   });
   assert.equal(final.excluded[index], false);
   await new Promise((resolve) => setTimeout(resolve, 400));
@@ -119,7 +124,7 @@ exports.run = async () => {
           "undo restores result",
           "invalid rule line",
           "save baseline",
-          "rapid draft updates discard stale results",
+          "rapid draft updates discard stale results with native editor line endings",
         ],
       },
       null,
