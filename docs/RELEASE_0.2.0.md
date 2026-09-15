@@ -10,7 +10,7 @@ This version packages Dockerignore Inspector for the regular Marketplace release
 
 ## Installation
 
-Use the [Marketplace listing](https://marketplace.visualstudio.com/items?itemName=achenachen.dockerignore-inspector) and choose **Install** after regular version 0.2.0 is available. Existing pre-release users can select **Switch to Release Version**. Marketplace upload is performed separately by the publisher owner.
+Use the [Marketplace listing](https://marketplace.visualstudio.com/items?itemName=achenachen.dockerignore-inspector) and choose **Install** after regular version 0.2.0 is available. Existing pre-release users can select **Switch to Release Version**. The publisher owner reports that Marketplace 0.2.0 has been uploaded. At the publication check, the public gallery API still returned only 0.1.1; verification or propagation may still be pending. The matching GitHub VSIX files are available now.
 
 Alternatively, run **Extensions: Install from VSIX…** with the matching asset:
 
@@ -64,6 +64,6 @@ CI: https://github.com/achenachena/dockerignore-inspector/actions/runs/350331553
 
 ## Scope and publication
 
-The regular release channel fixes the missing-release installation entry **after the owner uploads both packages and Marketplace verification succeeds**. No Marketplace upload has been performed for 0.2.0 as part of preparation. GitHub Release text is prepared in RELEASE_NOTES.md; publication is not implied by its existence.
+The regular release channel fixes the missing-release installation entry **after the owner uploads both packages and Marketplace verification succeeds**. Publication update: the owner reports uploading 0.2.0 to Marketplace; the public gallery had not yet exposed that version when checked. [GitHub v0.2.0](https://github.com/achenachena/dockerignore-inspector/releases/tag/v0.2.0) is now public as a regular release with both verified platform packages and SHA256SUMS. The uploaded GitHub asset digests match the values above.
 
 Windows remains gated and Windows Desktop Docker validation is still outstanding. Remote SSH, WSL, Dev Containers, Web, Intel macOS, Linux ARM and Alpine remain outside the supported packages. The two other previously reported keyboard/duplicate-explanation issues remain unchanged. No new features or platforms were added.
