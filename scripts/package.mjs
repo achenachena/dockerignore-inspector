@@ -7,5 +7,5 @@ if (!["darwin-arm64", "linux-x64"].includes(target) &&
   throw new Error(`Unsupported release target: ${target}`);
 }
 const output = `dist/${manifest.name}-${manifest.version}-${target}.vsix`;
-execFileSync(process.execPath, ["node_modules/@vscode/vsce/vsce", "package", "--pre-release", "--target", target, "--out", output], { stdio: "inherit" });
+execFileSync(process.execPath, ["node_modules/@vscode/vsce/vsce", "package", "--target", target, "--out", output], { stdio: "inherit" });
 execFileSync(process.execPath, ["scripts/checksum.mjs", output], { stdio: "inherit" });

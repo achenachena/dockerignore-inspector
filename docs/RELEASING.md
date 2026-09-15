@@ -1,44 +1,38 @@
 # Release preparation
 
-## Version and supported packages
+## Version and packages
 
-Publisher: `achenachen`. Repository: `achenachena/dockerignore-inspector`.
-Version 0.1.1 follows the published GitHub preview 0.1.0. The public Marketplace query returned no matching extension on September 15, 2026; private drafts are not visible to that query. Check the publisher dashboard before uploading.
+Publisher: `achenachen`. Version **0.2.0** uses the regular Marketplace release channel. Public version checks before preparation found only 0.1.1 in Marketplace, and 0.1.0/0.1.1 on GitHub. This version is distinct from those pre-releases.
 
 | Package | Supported host |
 | --- | --- |
-| `dockerignore-inspector-0.1.1-darwin-arm64.vsix` | Apple Silicon macOS, VS Code 1.137.0+ |
-| `dockerignore-inspector-0.1.1-linux-x64.vsix` | glibc Linux x64, VS Code 1.137.0+ |
+| `dockerignore-inspector-0.2.0-darwin-arm64.vsix` | Apple Silicon macOS, VS Code 1.137.0+ |
+| `dockerignore-inspector-0.2.0-linux-x64.vsix` | glibc Linux x64, VS Code 1.137.0+ |
 
-Both packages have the Marketplace pre-release flag. Do not upload a universal package or a Windows validation package. Windows remains gated; WSL, Remote SSH, Dev Containers, and Web remain unsupported. Windows 10/11 with Docker Desktop Linux containers has not been validated.
+Neither package may contain `Microsoft.VisualStudio.Code.PreRelease=true`. There is no universal package. Windows compatibility and CI remain, but Windows users are still gated. WSL, Remote SSH, Dev Containers, and Web remain unsupported.
 
-## Build and validation
+## Build and check
 
-`npm run package` builds a pre-release package for the current supported host. An explicit target can be supplied with `npm run package -- darwin-arm64` or `npm run package -- linux-x64`. Targeting a platform does not validate it; install the final package on that host.
+`npm run package` builds for the current supported host, using an explicit `--target` and no `--pre-release`. To choose a target, use `npm run package -- darwin-arm64` or `npm run package -- linux-x64`. Cross-packaging does not validate a target: test installation on that host.
 
-`npm run test:integration` installs the host package into a new empty extensions directory and exercises the example, WASM matching, aliased draft edits, undo, invalid rules, save, and rapid edits. Linux and Windows download the declared minimum VS Code version. macOS uses the installed application; check its recorded version. `INSPECTOR_VSIX` can specify an exact final package path.
+`npm run test:integration` installs the exact host VSIX in a new empty extensions directory and exercises activation, WASM, the example, draft edits, Undo, invalid rules, save, and rapid edits. `INSPECTOR_VSIX` can override the package path. Keep the macOS test window foregrounded for Undo. The lifecycle regression test verifies that Cancel clears queued work, subsequent edits can schedule again, and disposal clears timers.
 
-Windows CI alone sets `INSPECTOR_WINDOWS_VALIDATION=1` to build and test a gated `win32-x64` candidate. Its VSIX is not uploaded as an artifact or released. Preserve this validation without advertising Windows support.
+Windows CI alone sets `INSPECTOR_WINDOWS_VALIDATION=1` to test a candidate win32-x64 package. It is not a public release artifact.
 
-Review the VSIX manifest for identity, version, target, pre-release flag, and engine range. Check worker, WASM, Go bridge, webview, examples, licenses, and HTTPS README image links. Private handoff documents, credentials, dependencies, and test outputs must be absent. Generate the combined checksum file from the two exact deliverables:
-
-```sh
-node scripts/checksum.mjs dist/release/dockerignore-inspector-0.1.1-darwin-arm64.vsix dist/release/dockerignore-inspector-0.1.1-linux-x64.vsix
-```
+Verify package identity, target, version, engine range, absence of the pre-release marker, runtime files, images and licenses. Exclude private handoff documents, credentials, tests and development dependencies. Generate checksums from the exact deliverables and keep binaries unchanged after installed validation.
 
 ## Manual Marketplace upload
 
-1. Sign in to [Manage Extensions](https://marketplace.visualstudio.com/manage/publishers/achenachen) and select publisher **achenachen**.
-2. If the extension does not exist, choose **New extension > Visual Studio Code** and upload `dockerignore-inspector-0.1.1-darwin-arm64.vsix`. If it exists, use its **Update** action instead. Do not create a second extension identity.
-3. Confirm identity `achenachen.dockerignore-inspector`, version **0.1.1**, target **darwin-arm64**, and pre-release status. Submit and wait for validation.
-4. On that same extension, choose **Update**, upload `dockerignore-inspector-0.1.1-linux-x64.vsix`, and confirm target **linux-x64** and the same version and pre-release status. Submit and wait for validation. Platform-specific packages share a version.
-5. Confirm both targets appear under version 0.1.1, and the listing's README screenshot loads. Do not upload `SHA256SUMS` as an extension. No token needs to be shared.
-6. On a supported host, open the listing in VS Code and select **Install Pre-Release Version** (or switch to the pre-release channel), then run **Dockerignore: Open Example**.
+1. Open [publisher achenachen](https://marketplace.visualstudio.com/manage/publishers/achenachen), locate **Dockerignore Inspector**, and select **Update**.
+2. Upload `dockerignore-inspector-0.2.0-darwin-arm64.vsix`. Confirm version 0.2.0, target darwin-arm64, and the regular release channel (not pre-release). Submit and wait for verification.
+3. On the same extension, select **Update** again and upload `dockerignore-inspector-0.2.0-linux-x64.vsix`. Confirm the same version/channel and target linux-x64. Submit and wait for verification.
+4. Confirm both platform packages are listed under regular version 0.2.0. Do not upload SHA256SUMS, a universal package, or a Windows validation package.
+5. On a supported host, select the default **Install** button. A user already on 0.1.1 pre-release can choose **Switch to Release Version**. The prior missing-release message is resolved only after Marketplace accepts these regular-channel packages.
 
-If the dashboard reports a version conflict, stop and inspect existing versions; do not change a package's name or metadata after verification. A public Marketplace listing is only claimed after upload and validation succeed.
-
-Official reference: [Publishing Extensions](https://code.visualstudio.com/api/working-with-extensions/publishing-extension), including pre-release and platform-specific packaging.
+The VSIX metadata, rather than the filename alone, determines the release channel. If the dashboard reports a conflict, inspect the existing versions instead of changing verified package metadata. No token needs to be shared.
 
 ## GitHub Release
 
-Use tag `v0.1.1`, title **v0.1.1 Preview — macOS Apple Silicon and Linux x64**, and mark the release as a **pre-release**. Attach only the two platform VSIX files and their combined `SHA256SUMS`. Use the prepared `dist/release/RELEASE_NOTES.md` as the body. Keep historical v0.1.0 assets unchanged. Preparing files does not publish a release.
+Use tag `v0.2.0` and title **v0.2.0 — macOS ARM64 and Linux x64**. Use a regular GitHub release, with the pre-release checkbox off. Attach only the two verified VSIX files and SHA256SUMS. The prepared release notes explain the cancellation fix, supported platforms, remaining known interaction issues, and Marketplace upload status. GitHub and Marketplace publication are separate actions.
+
+Official reference: [Publishing Extensions](https://code.visualstudio.com/api/working-with-extensions/publishing-extension).

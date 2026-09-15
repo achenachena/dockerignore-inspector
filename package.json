@@ -2,7 +2,7 @@
   "name": "dockerignore-inspector",
   "displayName": "Dockerignore Inspector",
   "description": "Inspect build context files, explain ignore rules, and preview unsaved changes locally.",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "publisher": "achenachen",
   "private": true,
   "license": "MIT",

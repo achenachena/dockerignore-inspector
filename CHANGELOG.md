@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0
+
+- Package macOS ARM64 and Linux x64 for the regular Marketplace release channel, enabling the default Install entry after publication.
+- Cancel pending draft-update timers when stopping work, preventing updates from restarting after Cancel.
+- Make Marketplace installation the primary documented path and clarify the Select context step.
+- Retain the existing platform restrictions and Windows validation gate.
+
 ## 0.1.1 — Preview
 
 - Distribute separate pre-release packages for Apple Silicon macOS and Linux x64.

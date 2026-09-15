@@ -2,7 +2,7 @@
 
 See which files your Docker build context includes, why their state changes, and what happens as you edit `.dockerignore`.
 
-**Preview support: Apple Silicon macOS (`darwin-arm64`) and glibc Linux x64 (`linux-x64`), VS Code Desktop 1.137.0+. Trusted local workspaces only.** Windows is still being validated and is not enabled; no release date is promised. WSL, Remote SSH, Dev Containers, and VS Code Web are unsupported. Sizes are logical file sizes, not transfer or image sizes.
+**Supported platforms: Apple Silicon macOS (`darwin-arm64`) and glibc Linux x64 (`linux-x64`), VS Code Desktop 1.137.0+. Trusted local workspaces only.** Windows is still being validated and is not enabled; no release date is promised. WSL, Remote SSH, Dev Containers, and VS Code Web are unsupported. Sizes are logical file sizes, not transfer or image sizes.
 
 A local VS Code Desktop extension for debugging ignore rules. No Docker daemon, account, Go installation, network connection, or API key is needed to inspect a directory.
 
@@ -12,11 +12,11 @@ A local VS Code Desktop extension for debugging ignore rules. No Docker daemon, 
 
 [Watch the saved → draft → undo capture in VS Code](docs/images/draft-preview.gif).
 
-## Install the preview
+## Install
 
 [Install from Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=achenachen.dockerignore-inspector).
 
-1. Open the listing in **VS Code 1.137.0 or later** and choose **Install Pre-Release Version**. There is no stable release yet; if VS Code offers **Install Pre-Release**, select it.
+1. Open the listing in **VS Code 1.137.0 or later** and choose **Install** for the regular release channel. Version 0.2.0 is prepared for this channel; until its Marketplace upload completes, only 0.1.1 pre-release is available.
 2. Run **Dockerignore: Open Example**.
 3. Remove `!` from `!assets/logo.svg` without saving, inspect the change, then undo.
 
@@ -24,14 +24,14 @@ Publisher: `achenachen`. If you installed the earlier `local-preview` package, u
 
 ### Alternative: install a VSIX
 
-Download the package matching your platform, then run **Extensions: Install from VSIX…** and select it. Reload if prompted.
+After the 0.2.0 GitHub Release is published, download the package matching your platform, then run **Extensions: Install from VSIX…** and select it. Reload if prompted.
 
 | Platform | Package |
 | --- | --- |
-| macOS, Apple Silicon | [darwin-arm64 VSIX](https://github.com/achenachena/dockerignore-inspector/releases/download/v0.1.1/dockerignore-inspector-0.1.1-darwin-arm64.vsix) |
-| Linux, x64 (glibc) | [linux-x64 VSIX](https://github.com/achenachena/dockerignore-inspector/releases/download/v0.1.1/dockerignore-inspector-0.1.1-linux-x64.vsix) |
+| macOS, Apple Silicon | [darwin-arm64 VSIX](https://github.com/achenachena/dockerignore-inspector/releases/download/v0.2.0/dockerignore-inspector-0.2.0-darwin-arm64.vsix) |
+| Linux, x64 (glibc) | [linux-x64 VSIX](https://github.com/achenachena/dockerignore-inspector/releases/download/v0.2.0/dockerignore-inspector-0.2.0-linux-x64.vsix) |
 
-[Release notes and SHA-256 checksums](https://github.com/achenachena/dockerignore-inspector/releases/tag/v0.1.1).
+[Release notes and SHA-256 checksums](https://github.com/achenachena/dockerignore-inspector/releases/tag/v0.2.0).
 
 ## Try it in three steps
 

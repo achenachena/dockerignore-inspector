@@ -53,6 +53,8 @@ export function activate(extension: vscode.ExtensionContext) {
     return true;
   };
   function stop() {
+    clearTimeout(timer);
+    timer = undefined;
     version++;
     abort?.abort();
     engine?.dispose();
@@ -411,7 +413,6 @@ export function activate(extension: vscode.ExtensionContext) {
   function schedule() {
     if (!panel || !selection) return;
     stop();
-    clearTimeout(timer);
     void send({
       type: "status",
       busy: true,
