@@ -4,9 +4,11 @@ See which files your Docker build context includes, why their state changes, and
 
 A local VS Code Desktop extension for debugging ignore rules. No Docker daemon, account, Go installation, network connection, or API key is needed to inspect a directory.
 
-![Actual installed VSIX: unsaved rule changes and their impact](docs/images/draft-dark.png)
+![Draft preview showing assets/logo.svg excluded by line 4, with one fewer included file and a 123-byte decrease](docs/images/preview-detail.png)
 
-[Watch the saved → draft → undo capture](docs/images/draft-preview.gif). These are captures of the installed extension, not mockups.
+*Detail view rendered from the extension’s webview and bundled example at 2× resolution. Removing `!` from `!assets/logo.svg` excludes the logo; the rule trace explains why.*
+
+[Watch the saved → draft → undo capture in VS Code](docs/images/draft-preview.gif).
 
 ## Install the preview
 
