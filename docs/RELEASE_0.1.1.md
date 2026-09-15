@@ -17,7 +17,7 @@ Requires **VS Code Desktop 1.137.0 or later** and a trusted local workspace. Bot
 1. Download the package matching your platform. Verify it against `SHA256SUMS` if desired (`shasum -a 256 -c SHA256SUMS` on macOS or `sha256sum -c SHA256SUMS` on Linux when both packages are present).
 2. Run **Extensions: Install from VSIX…** in VS Code and select that package.
 3. Run **Dockerignore: Open Example**. Remove `!` from `!assets/logo.svg` without saving, inspect the draft difference, then undo.
-4. Run **Dockerignore: Inspect Build Context** to select your own context and Dockerfile.
+4. Run **Dockerignore: Inspect Build Context**, click **Select context**, then choose your context directory and Dockerfile.
 
 Publisher: `achenachen`. Uninstall an old `local-preview` installation first to avoid duplicate commands.
 
@@ -67,7 +67,7 @@ Windows compatibility and CI remain, but Windows user access is still gated. Win
 
 WSL, Remote SSH, Dev Containers, and VS Code Web remain unsupported. Intel macOS, Linux ARM, and Alpine are unvalidated. The preview reports logical file sizes, does not follow symlinks, and labels incomplete or unreadable scan results. Earlier visual/manual checks are not claimed as a fresh full manual pass of every UI action in this release.
 
-Marketplace upload and GitHub Release publication have not been performed for 0.1.1. The release notes and manual upload instructions are prepared separately.
+This paragraph originally recorded the pre-publication state. Publication update, September 15, 2026: Marketplace 0.1.1 is public for darwin-arm64 and linux-x64 with pre-release flags. The [GitHub v0.1.1 preview](https://github.com/achenachena/dockerignore-inspector/releases/tag/v0.1.1) now contains both original verified packages and SHA256SUMS. The package hashes below remain unchanged. See [the subsequent audit](QA_0.1.1.md) for three known interaction issues queued for a patch.
 
 ## Exact deliverables
 

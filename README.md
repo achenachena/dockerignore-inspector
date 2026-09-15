@@ -14,22 +14,28 @@ A local VS Code Desktop extension for debugging ignore rules. No Docker daemon, 
 
 ## Install the preview
 
-Download the package for your platform from [GitHub Releases](https://github.com/achenachena/dockerignore-inspector/releases). For version 0.1.1, choose:
+[Install from Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=achenachen.dockerignore-inspector).
+
+1. Open the listing in **VS Code 1.137.0 or later** and choose **Install Pre-Release Version**. There is no stable release yet; if VS Code offers **Install Pre-Release**, select it.
+2. Run **Dockerignore: Open Example**.
+3. Remove `!` from `!assets/logo.svg` without saving, inspect the change, then undo.
+
+Publisher: `achenachen`. If you installed the earlier `local-preview` package, uninstall it to avoid duplicate commands.
+
+### Alternative: install a VSIX
+
+Download the package matching your platform, then run **Extensions: Install from VSIX…** and select it. Reload if prompted.
 
 | Platform | Package |
 | --- | --- |
-| macOS, Apple Silicon | `dockerignore-inspector-0.1.1-darwin-arm64.vsix` |
-| Linux, x64 (glibc) | `dockerignore-inspector-0.1.1-linux-x64.vsix` |
+| macOS, Apple Silicon | [darwin-arm64 VSIX](https://github.com/achenachena/dockerignore-inspector/releases/download/v0.1.1/dockerignore-inspector-0.1.1-darwin-arm64.vsix) |
+| Linux, x64 (glibc) | [linux-x64 VSIX](https://github.com/achenachena/dockerignore-inspector/releases/download/v0.1.1/dockerignore-inspector-0.1.1-linux-x64.vsix) |
 
-1. In VS Code **1.137.0 or later**, run **Extensions: Install from VSIX…** and select your platform's package.
-2. Reload if prompted, then run **Dockerignore: Open Example**.
-3. Remove `!` from `!assets/logo.svg` without saving, inspect the change, then undo.
-
-Publisher: `achenachen`. If you installed the earlier `local-preview` package, uninstall it to avoid duplicate commands. Marketplace users should select the **pre-release** channel when this version is available.
+[Release notes and SHA-256 checksums](https://github.com/achenachena/dockerignore-inspector/releases/tag/v0.1.1).
 
 ## Try it in three steps
 
-1. Run **Dockerignore: Inspect Build Context**. Select the context directory, then the Dockerfile you actually build with. These are separate choices. You can also right-click a Dockerfile and select the command; that file is retained while you choose the build context.
+1. Run **Dockerignore: Inspect Build Context**, click **Select context**, then select the context directory and the Dockerfile you actually build with. These are separate choices. You can also right-click a Dockerfile and select the command; that file is retained while you choose the build context.
 2. Select a file in the tree. Follow the effective rule changes and click a rule to jump to its line.
 3. Edit the active ignore file without saving. The **Draft impact** panel compares the draft with the saved rules. Undo to restore the previous result.
 
