@@ -13,7 +13,7 @@ async function until(fn) {
 }
 exports.run = async () => {
   const extension = vscode.extensions.getExtension(
-    "local-preview.dockerignore-inspector",
+    "achenachen.dockerignore-inspector",
   );
   assert(extension, "Installed VSIX not found");
   const api = await extension.activate();

@@ -50,7 +50,7 @@ These measurements exclude disk enumeration and Webview rendering, use a small r
 - **Other environments:** macOS ARM64 and Linux x64 have been tested. Windows and remote/virtual workspaces are blocked. macOS Intel and the declared minimum VS Code version have not been installed and tested.
 - **Full network-isolated editor run:** core behavior was tested with network calls disabled, and the extension contains no runtime networking. VS Code itself was not disconnected from the network during UI checks.
 - **Large-directory UI stress:** scan cancellation and worker termination are tested independently; a large physical directory was not driven through the full native panel under sustained typing.
-- **Distribution:** Source is published at https://github.com/achenachena/dockerignore-inspector. No GitHub Release or Marketplace listing has been created. `local-preview` is local package metadata, not an actual publisher account. A real Marketplace publisher identity, store name availability, and Marketplace authorization remain release steps.
+- **Distribution:** Source is published at https://github.com/achenachena/dockerignore-inspector. No GitHub Release or Marketplace listing has been created. The user supplied the registered Marketplace publisher ID `achenachen`; the package now uses that identity. Marketplace upload and store validation remain pending.
 
 ## Behavioral limits
 

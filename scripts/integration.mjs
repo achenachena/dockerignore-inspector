@@ -16,7 +16,7 @@ const executable =
 const cli =
   process.env.VSCODE_CLI_PATH ||
   resolveCliPathFromVSCodeExecutablePath(executable);
-const extensions = path.join(root, "extensions");
+const extensions = path.join(root, "extensions-achenachen");
 const user = await mkdtemp(path.join(root, "run-"));
 await rm(path.join(root, "integration-result.json"), { force: true });
 const harness = path.join(root, "harness");

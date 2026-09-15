@@ -12,5 +12,7 @@
 !webview/**
 !examples/**
 !docs/images/**
-!docs/*.md
-docs/PRODUCT.md
+!docs/DEVELOPMENT.md
+!docs/EXAMPLES.md
+!docs/RELEASING.md
+!docs/VALIDATION.md

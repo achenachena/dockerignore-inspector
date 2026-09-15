@@ -2,7 +2,7 @@
 
 ## Current identity
 
-`local-preview` is a deliberately local-only VSIX publisher identifier, not a registered user identity. The npm package is private. The source repository is `achenachena/dockerignore-inspector`; Marketplace publication is separate. Do not publish it unchanged.
+The Marketplace publisher ID is `achenachen`, supplied by the publisher owner. The source repository is `achenachena/dockerignore-inspector`. The npm package remains private to prevent accidental npm publication; VSIX distribution is separate. Marketplace upload is pending.
 
 ## Local review
 
@@ -12,8 +12,8 @@ The package is `dist/dockerignore-inspector-0.1.0.vsix`; its checksum is in `dis
 
 ## Public release prerequisites
 
-1. Obtain the actual GitHub owner/repository and publisher ID, and explicit authorization for the intended public destinations.
-2. Replace the local publisher identifier; add actual repository and issue URLs; remove `private` when publication is intended.
+1. Confirm the intended destination: publisher `achenachen` on Visual Studio Marketplace.
+2. Verify the package publisher and repository metadata. Uninstall any previous `local-preview.dockerignore-inspector` installation before testing the new identity.
 3. Check Marketplace name availability directly, review the bundled PNG icon, and ensure screenshots render with public repository image URLs.
 4. Rebuild and reinstall the exact final package after metadata changes. Complete supported-platform validation and CI.
 5. Push only with authorization. Create the version tag and GitHub Release, attaching the verified VSIX and checksum.
@@ -33,3 +33,7 @@ See which files your Docker build context includes, why they match, and what cha
 - Work offline, without telemetry or a Docker daemon.
 
 Logical file sizes are not measured transfer sizes or image sizes. Local desktop support only; consult the validated platform list.
+
+## Manual Marketplace upload
+
+Open https://marketplace.visualstudio.com/manage/publishers/achenachen, select **New extension > Visual Studio Code**, and upload `dist/dockerignore-inspector-0.1.0.vsix`. Confirm the displayed name and version, then submit. Wait for Marketplace validation before announcing availability. No token needs to be shared.

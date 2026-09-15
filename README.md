@@ -16,7 +16,7 @@ Source: [achenachena/dockerignore-inspector](https://github.com/achenachena/dock
 2. Select the VSIX, then reload if prompted.
 3. Run **Dockerignore: Open Example** to try it immediately.
 
-The preview uses the explicit local-only publisher identifier `local-preview`. It is not a registered publishing identity or a claim of Marketplace availability.
+The extension uses publisher ID `achenachen`. Marketplace publication is still pending. If you installed the earlier `local-preview` package, uninstall it before installing this package to avoid duplicate commands.
 
 ## Try it in three steps
 

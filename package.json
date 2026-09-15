@@ -3,7 +3,7 @@
   "displayName": "Dockerignore Inspector",
   "description": "Inspect build context files, explain ignore rules, and preview unsaved changes locally.",
   "version": "0.1.0",
-  "publisher": "local-preview",
+  "publisher": "achenachen",
   "private": true,
   "license": "MIT",
   "engines": {
@@ -82,7 +82,7 @@
     "test:engine": "cd engine && go test ./...",
     "test:docker": "node scripts/docker-test.mjs",
     "test:integration": "node scripts/integration.mjs",
-    "package": "npm run build && vsce package --allow-missing-repository --no-rewrite-relative-links --out dist/dockerignore-inspector-0.1.0.vsix && node scripts/checksum.mjs",
+    "package": "npm run build && vsce package --out dist/dockerignore-inspector-0.1.0.vsix && node scripts/checksum.mjs",
     "vscode:prepublish": "npm run typecheck"
   },
   "devDependencies": {
