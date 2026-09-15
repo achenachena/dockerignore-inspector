@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1
+
+- Show only the latest rule explanation when selecting files repeatedly or switching between them.
+- Select the first row on the first Down Arrow press when nothing is selected.
+- Simplify installation, usage and release documentation.
+
 ## 0.2.0 — 2026-09-15
 
 - Use the regular Marketplace release channel for macOS ARM64 and Linux x64.

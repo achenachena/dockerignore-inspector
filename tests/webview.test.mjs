@@ -89,3 +89,103 @@ test("error clears stale rows and selection; resize, scroll and keys remain safe
   h.get("tree").onkeydown({ key: "Enter", preventDefault() {} });
   assert.equal(h.messages.at(-1).type, "explain");
 });
+
+function populated() {
+  const h = harness();
+  const payload = {
+    type: "snapshot",
+    snapshot: {
+      ...snapshot,
+      entries: ["a.js", "b.js", "c.js"].map((path) => ({
+        path,
+        kind: "file",
+        size: 10,
+      })),
+      excluded: [false, false, false],
+      savedExcluded: [false, false, false],
+    },
+    totals: { count: 3, bytes: 30 },
+  };
+  h.send(payload);
+  return {
+    ...h,
+    payload,
+    key: (key) => h.get("tree").onkeydown({ key, preventDefault() {} }),
+  };
+}
+function respond(h, request, rule) {
+  h.send({
+    type: "explanation",
+    path: request.path,
+    requestId: request.requestId,
+    reasons: [{ line: 1, rule, excluded: true }],
+  });
+}
+function rules(h) {
+  return h
+    .get("explanation")
+    .children.filter((node) => node.className === "rule")
+    .map((node) => node.textContent);
+}
+test("first Down selects the first row and subsequent arrows move normally", () => {
+  const h = populated();
+  for (const [key, expected] of [
+    ["ArrowDown", "a.js"],
+    ["ArrowDown", "b.js"],
+    ["ArrowUp", "a.js"],
+    ["ArrowUp", "a.js"],
+    ["End", "c.js"],
+    ["Home", "a.js"],
+  ]) {
+    h.key(key);
+    assert.equal(h.messages.at(-1).path, expected);
+  }
+});
+test("repeated selection accepts only the newest explanation once", () => {
+  const h = populated();
+  h.key("Enter");
+  const first = h.messages.at(-1);
+  h.key("Enter");
+  const second = h.messages.at(-1);
+  assert(Number.isSafeInteger(second.requestId));
+  assert.notEqual(first.requestId, second.requestId);
+  respond(h, second, "new");
+  respond(h, first, "old");
+  respond(h, second, "duplicate");
+  assert.deepEqual(rules(h), ["Excluded by line 1: new"]);
+});
+test("A to B to A ignores out-of-order responses and invalidates on new snapshots", () => {
+  const h = populated();
+  h.key("Home");
+  const a1 = h.messages.at(-1);
+  h.key("ArrowDown");
+  const b = h.messages.at(-1);
+  h.key("Home");
+  const a2 = h.messages.at(-1);
+  respond(h, b, "wrong-file");
+  respond(h, a1, "old-a");
+  assert.deepEqual(rules(h), []);
+  respond(h, a2, "current-a");
+  assert.deepEqual(rules(h), ["Excluded by line 1: current-a"]);
+  h.send(h.payload);
+  const refreshed = h.messages.at(-1);
+  respond(h, a2, "previous-snapshot");
+  assert.deepEqual(rules(h), []);
+  respond(h, refreshed, "refreshed");
+  assert.deepEqual(rules(h), ["Excluded by line 1: refreshed"]);
+});
+test("pending explanations are ignored after recalculation, cancellation and errors", () => {
+  const h = populated();
+  for (const invalidate of [
+    () => h.send({ type: "status", busy: true, message: "Updating" }),
+    () => h.get("cancel").onclick(),
+    () => h.send({ type: "error", message: "Unavailable" }),
+  ]) {
+    h.send(h.payload);
+    h.key("Enter");
+    const request = h.messages.at(-1);
+    invalidate();
+    respond(h, request, "stale");
+    assert.deepEqual(rules(h), []);
+  }
+});

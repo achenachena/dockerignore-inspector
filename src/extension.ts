@@ -331,6 +331,7 @@ export function activate(extension: vscode.ExtensionContext) {
               !snapshot ||
               !engine ||
               typeof message.path !== "string" ||
+              !Number.isSafeInteger(message.requestId) ||
               !snapshot.entries.some((e) => e.path === message.path)
             )
               break;
@@ -341,6 +342,7 @@ export function activate(extension: vscode.ExtensionContext) {
             if (run === version)
               await send({
                 type: "explanation",
+                requestId: message.requestId,
                 path: target,
                 reasons: result.reasons,
                 error: result.error,

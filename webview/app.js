@@ -8,6 +8,8 @@ let collapsed = new Set();
 let busy = false;
 let aggregates = new Map();
 let changePage = 0;
+let explanationSequence = 0;
+let pendingExplanation;
 const rowHeight = 32;
 const post = (type, data = {}) => vscode.postMessage({ type, ...data });
 const size = (n) =>
@@ -34,7 +36,10 @@ for (const id of [
   "cancel",
   "example",
 ])
-  $(id).onclick = () => post(id);
+  $(id).onclick = () => {
+    if (id === "cancel") pendingExplanation = undefined;
+    post(id);
+  };
 function unknown(i) {
   return (
     !!snapshot.error ||
@@ -105,6 +110,7 @@ function filter() {
 }
 function choose(entry) {
   if (!snapshot || !snapshot.entries.includes(entry)) return;
+  pendingExplanation = undefined;
   selected = entry.path;
   rows();
   const i = snapshot.entries.indexOf(entry);
@@ -137,7 +143,8 @@ function choose(entry) {
     );
   if (!snapshot.error && !busy) {
     box.append(element("p", "Tracing effective rule changes…", "pending"));
-    post("explain", { path: entry.path });
+    pendingExplanation = ++explanationSequence;
+    post("explain", { path: entry.path, requestId: pendingExplanation });
   }
   if (entry.kind === "file") {
     const open = element("button", "Open file");
@@ -208,7 +215,8 @@ $("tree").onscroll = rows;
 $("tree").onkeydown = (event) => {
   if (!snapshot || !visible.length) return;
   let index = visible.findIndex(({ entry }) => entry.path === selected);
-  if (index < 0) index = 0;
+  const hasSelection = index >= 0;
+  if (!hasSelection) index = 0;
   if (
     event.key === "ArrowDown" ||
     event.key === "ArrowUp" ||
@@ -221,13 +229,15 @@ $("tree").onkeydown = (event) => {
         ? 0
         : event.key === "End"
           ? visible.length - 1
-          : Math.max(
-              0,
-              Math.min(
-                visible.length - 1,
-                index + (event.key === "ArrowDown" ? 1 : -1),
-              ),
-            );
+          : !hasSelection
+            ? 0
+            : Math.max(
+                0,
+                Math.min(
+                  visible.length - 1,
+                  index + (event.key === "ArrowDown" ? 1 : -1),
+                ),
+              );
     choose(visible[index].entry);
     $("tree").scrollTop = Math.max(
       0,
@@ -339,12 +349,14 @@ function changes() {
 window.addEventListener("message", ({ data }) => {
   if (data.type === "status") {
     busy = data.busy;
+    if (busy) pendingExplanation = undefined;
     $("status").textContent = data.message;
     $("cancel").disabled = !busy;
     $("tree").setAttribute("aria-busy", String(busy));
     return;
   }
   if (data.type === "error") {
+    pendingExplanation = undefined;
     busy = false;
     snapshot = undefined;
     visible = [];
@@ -373,6 +385,7 @@ window.addEventListener("message", ({ data }) => {
     return;
   }
   if (data.type === "snapshot") {
+    pendingExplanation = undefined;
     const oldContext = snapshot?.context;
     snapshot = { ...data.snapshot, controlPaths: data.controlPaths || [] };
     busy = false;
@@ -427,7 +440,14 @@ window.addEventListener("message", ({ data }) => {
     if (currentEntry) choose(currentEntry);
     return;
   }
-  if (data.type === "explanation" && snapshot && data.path === selected) {
+  if (
+    data.type === "explanation" &&
+    snapshot &&
+    data.path === selected &&
+    pendingExplanation !== undefined &&
+    data.requestId === pendingExplanation
+  ) {
+    pendingExplanation = undefined;
     const box = $("explanation");
     box.querySelector(".pending")?.remove();
     if (data.error) {
