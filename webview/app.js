@@ -128,8 +128,7 @@ function choose(entry) {
       ),
     );
   if (entry.error) box.append(element("p", entry.error));
-  const absolute = snapshot.context + "/" + entry.path;
-  if (absolute === snapshot.dockerfile || absolute === snapshot.ignore)
+  if (snapshot.controlPaths?.includes(entry.path))
     box.append(
       element(
         "p",
@@ -375,7 +374,7 @@ window.addEventListener("message", ({ data }) => {
   }
   if (data.type === "snapshot") {
     const oldContext = snapshot?.context;
-    snapshot = data.snapshot;
+    snapshot = { ...data.snapshot, controlPaths: data.controlPaths || [] };
     busy = false;
     if (oldContext !== snapshot.context) {
       collapsed = new Set();

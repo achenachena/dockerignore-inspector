@@ -3,14 +3,58 @@ import path from "node:path";
 import { Worker } from "node:worker_threads";
 import type { Entry, MatchResult, Scan } from "./types";
 
-export function inside(root: string, target: string): boolean {
-  const relative = path.relative(root, target);
+// Call containment checks with canonical paths. Preserve component case because
+// Windows can enable case-sensitive directories; only drive letters are folded.
+export function inside(
+  root: string,
+  target: string,
+  platform = process.platform,
+): boolean {
+  if (platform === "win32") {
+    const key = (value: string) =>
+      path.win32
+        .normalize(value)
+        .replace(/\\/g, "/")
+        .replace(/^([a-z]):/i, (_m, drive: string) => drive.toUpperCase() + ":")
+        .replace(/\/$/, "");
+    const base = key(root),
+      candidate = key(target);
+    return candidate === base || candidate.startsWith(base + "/");
+  }
+  const relative = path.posix.relative(root, target);
   return (
     relative === "" ||
-    (!relative.startsWith(`..${path.sep}`) &&
+    (!relative.startsWith("../") &&
       relative !== ".." &&
-      !path.isAbsolute(relative))
+      !path.posix.isAbsolute(relative))
   );
+}
+export function localWindowsPath(value: string): boolean {
+  return /^[a-z]:[\\/]/i.test(value);
+}
+export async function sameFile(
+  first: string,
+  second: string,
+): Promise<boolean> {
+  if (first === second) return true;
+  try {
+    const [a, b] = await Promise.all([
+      fs.stat(first, { bigint: true }),
+      fs.stat(second, { bigint: true }),
+    ]);
+    return a.ino !== 0n && a.dev === b.dev && a.ino === b.ino;
+  } catch {
+    return false;
+  }
+}
+export function windowsRuleError(text: string): string | undefined {
+  const lines = text.replace(/^\uFEFF/, "").split("\n");
+  const index = lines.findIndex(
+    (line) => !line.startsWith("#") && line.includes("\\"),
+  );
+  return index < 0
+    ? undefined
+    : `Line ${index + 1}: Backslash rules are not yet supported for Windows local contexts. Use forward-slash rules; Docker Desktop Linux-container parity for backslash escaping is not established.`;
 }
 export async function scan(
   root: string,
@@ -103,7 +147,8 @@ export async function activeIgnore(
     [path.join(root, ".dockerignore"), false],
   ] as const) {
     try {
-      return { file, specific, text: await fs.readFile(file, "utf8") };
+      const text = await fs.readFile(file, "utf8");
+      return { file: await fs.realpath(file), specific, text };
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
     }
@@ -152,6 +197,10 @@ export class Engine {
     paths: string[],
     explain = "",
   ): Promise<MatchResult> {
+    if (process.platform === "win32") {
+      const error = windowsRuleError(text);
+      if (error) return { excluded: [], reasons: [], error };
+    }
     await this.ready;
     return new Promise((resolve, reject) => {
       const id = ++this.next;

@@ -16,7 +16,7 @@ const executable =
 const cli =
   process.env.VSCODE_CLI_PATH ||
   resolveCliPathFromVSCodeExecutablePath(executable);
-const extensions = path.join(root, "extensions-achenachen");
+const extensions = await mkdtemp(path.join(root, "extensions-"));
 const user = await mkdtemp(path.join(root, "run-"));
 await rm(path.join(root, "integration-result.json"), { force: true });
 const harness = path.join(root, "harness");
@@ -35,8 +35,19 @@ await writeFile(path.join(harness, "main.cjs"), "exports.activate = () => {};");
 const env = { ...process.env };
 delete env.ELECTRON_RUN_AS_NODE;
 execFileSync(
-  cli,
+  process.platform === "win32" ? executable : cli,
   [
+    ...(process.platform === "win32"
+      ? [
+          path.join(
+            path.dirname(executable),
+            "resources",
+            "app",
+            "out",
+            "cli.js",
+          ),
+        ]
+      : []),
     "--user-data-dir",
     user,
     "--extensions-dir",
@@ -45,7 +56,13 @@ execFileSync(
     path.resolve("dist/dockerignore-inspector-0.1.0.vsix"),
     "--force",
   ],
-  { stdio: "inherit", env },
+  {
+    stdio: "inherit",
+    env:
+      process.platform === "win32"
+        ? { ...env, ELECTRON_RUN_AS_NODE: "1" }
+        : env,
+  },
 );
 await runTests({
   vscodeExecutablePath: executable,
@@ -64,5 +81,9 @@ await runTests({
     "--disable-gpu",
     path.resolve("examples/context"),
   ],
-  extensionTestsEnv: { ...env, INSPECTOR_RESULT_DIR: root },
+  extensionTestsEnv: {
+    ...env,
+    INSPECTOR_RESULT_DIR: root,
+    INSPECTOR_WINDOWS_VALIDATION: "1",
+  },
 });

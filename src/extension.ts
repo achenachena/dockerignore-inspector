@@ -3,7 +3,15 @@ import path from "node:path";
 import os from "node:os";
 import { promises as fs } from "node:fs";
 import { randomBytes } from "node:crypto";
-import { activeIgnore, Engine, inside, scan, totals } from "./core";
+import {
+  activeIgnore,
+  Engine,
+  inside,
+  scan,
+  totals,
+  sameFile,
+  localWindowsPath,
+} from "./core";
 import type { Scan, Snapshot } from "./types";
 
 export function activate(extension: vscode.ExtensionContext) {
@@ -31,9 +39,14 @@ export function activate(extension: vscode.ExtensionContext) {
       );
       return false;
     }
-    if (process.platform === "win32") {
+    // CI opts into the candidate implementation; production stays gated until
+    // Windows Docker Desktop Linux-container differential validation is recorded.
+    if (
+      process.platform === "win32" &&
+      process.env.INSPECTOR_WINDOWS_VALIDATION !== "1"
+    ) {
       void vscode.window.showWarningMessage(
-        "Windows path semantics are not yet validated. Use this preview on macOS or Linux.",
+        "Windows support is awaiting Docker Desktop Linux-container validation. This build is not yet enabled for Windows users.",
       );
       return false;
     }
@@ -52,6 +65,13 @@ export function activate(extension: vscode.ExtensionContext) {
       type: "snapshot",
       snapshot: { ...snapshot, text: undefined, savedText: undefined },
       totals: totals(snapshot.entries, snapshot.excluded),
+      controlPaths: [snapshot.dockerfile, snapshot.ignore]
+        .filter(
+          (file): file is string => !!file && inside(snapshot!.context, file),
+        )
+        .map((file) =>
+          path.relative(snapshot!.context, file).split(path.sep).join("/"),
+        ),
     });
   }
   async function update(refresh: boolean) {
@@ -69,6 +89,14 @@ export function activate(extension: vscode.ExtensionContext) {
     });
     const started = Date.now();
     try {
+      if (
+        process.platform === "win32" &&
+        (!localWindowsPath(current.context) ||
+          !localWindowsPath(current.dockerfile))
+      )
+        throw new Error(
+          "Select local Windows drive paths. UNC, WSL, device paths, and remote contexts are not supported.",
+        );
       const rootStat = await fs.stat(current.context);
       const dockerStat = await fs.stat(current.dockerfile);
       if (run !== version) return;
@@ -95,11 +123,19 @@ export function activate(extension: vscode.ExtensionContext) {
       }
       const ignore = await activeIgnore(current.context, current.dockerfile);
       if (run !== version) return;
-      const document = ignore.file
-        ? vscode.workspace.textDocuments.find(
-            (d) => d.uri.scheme === "file" && d.uri.fsPath === ignore.file,
+      const documents = ignore.file
+        ? await Promise.all(
+            vscode.workspace.textDocuments.map(async (d) =>
+              d.uri.scheme === "file" &&
+              (await sameFile(d.uri.fsPath, ignore.file!))
+                ? d
+                : undefined,
+            ),
           )
-        : undefined;
+        : [];
+      if (run !== version) return;
+      const document =
+        documents.find((d) => d?.isDirty) ?? documents.find(Boolean);
       const text = document?.getText() ?? ignore.text;
       const draft = document?.isDirty ?? false;
       engine = new Engine(extension.asAbsolutePath("dist/worker.cjs"));
@@ -385,17 +421,27 @@ export function activate(extension: vscode.ExtensionContext) {
       void update(false);
     }, 250);
   }
+  async function documentChanged(document: vscode.TextDocument) {
+    const ignore = snapshot?.ignore;
+    if (
+      ignore &&
+      document.uri.scheme === "file" &&
+      (await sameFile(document.uri.fsPath, ignore)) &&
+      snapshot?.ignore === ignore
+    )
+      schedule();
+  }
   extension.subscriptions.push(
     vscode.commands.registerCommand("dockerignore.inspect", inspect),
     vscode.commands.registerCommand("dockerignore.example", example),
     vscode.workspace.onDidChangeTextDocument((event) => {
-      if (event.document.uri.fsPath === snapshot?.ignore) schedule();
+      void documentChanged(event.document);
     }),
     vscode.workspace.onDidSaveTextDocument((document) => {
-      if (document.uri.fsPath === snapshot?.ignore) schedule();
+      void documentChanged(document);
     }),
     vscode.workspace.onDidCloseTextDocument((document) => {
-      if (document.uri.fsPath === snapshot?.ignore) schedule();
+      void documentChanged(document);
     }),
     {
       dispose: () => {

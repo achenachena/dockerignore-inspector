@@ -3,12 +3,24 @@ import { mkdtemp, mkdir, writeFile, readdir, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import assert from "node:assert/strict";
+import { cases } from "./context-fixtures.mjs";
 import { createRequire } from "node:module";
 const { Engine, activeIgnore, scan } = createRequire(import.meta.url)(
   "../dist/core.cjs",
 );
-execFileSync("docker", ["version"], { stdio: "inherit" });
-const root = await mkdtemp(path.join(os.tmpdir(), "inspector-docker-"));
+const inspectOnly = process.argv.includes("--inspect-only");
+const evidence = [];
+if (!inspectOnly) {
+  execFileSync("docker", ["version"], { stdio: "inherit" });
+  assert.equal(
+    execFileSync("docker", ["info", "--format", "{{.OSType}}"], {
+      encoding: "utf8",
+    }).trim(),
+    "linux",
+    "These fixtures require a Linux container daemon",
+  );
+}
+const root = await mkdtemp(path.join(os.tmpdir(), "inspector context 世界-"));
 const engine = new Engine(path.resolve("dist/worker.cjs"));
 async function files(dir, prefix = "") {
   const out = [];
@@ -27,6 +39,9 @@ try {
   await mkdir(path.join(context, "docker"));
   for (const name of [
     "app.txt",
+    "MixedCase.TXT",
+    "hello 世界.txt",
+    "assets/with space.txt",
     "debug.log",
     "assets/logo.svg",
     "assets/draft.txt",
@@ -38,27 +53,6 @@ try {
   await writeFile(dockerfile, "FROM scratch\nCOPY . /\n");
   const dedicated = path.join(context, "docker", "build.Dockerfile");
   await writeFile(dedicated, "FROM scratch\nCOPY . /\n");
-  const cases = [
-    { name: "no rules", text: "" },
-    {
-      name: "negations and ancestors",
-      text: "cache\n!cache/keep.txt\n**/*.log\nassets/*\n!assets/logo.svg",
-    },
-    {
-      name: "control files excluded",
-      text: "Dockerfile\n.dockerignore\ndocker\n*.log",
-    },
-    {
-      name: "dedicated overrides root",
-      text: "*",
-      dedicated: "assets/*\n!assets/logo.svg",
-    },
-    { name: "empty dedicated overrides root", text: "*", dedicated: "" },
-    {
-      name: "BOM CRLF and normalization",
-      text: "\ufeff# Header\r\n /cache/ \r\n!cache/keep.txt\r\nassets/[dl]*\r\n",
-    },
-  ];
   for (let i = 0; i < cases.length; i++) {
     const fixture = cases[i];
     await writeFile(path.join(context, ".dockerignore"), fixture.text);
@@ -82,6 +76,8 @@ try {
       .filter((e, index) => e.kind === "file" && !result.excluded[index])
       .map((e) => e.path)
       .sort();
+    evidence.push({ name: fixture.name, files: expected });
+    if (inspectOnly) continue;
     const output = path.join(root, `output-${i}`);
     execFileSync(
       "docker",
@@ -101,6 +97,11 @@ try {
     assert.deepEqual(await files(output), expected, fixture.name);
     console.log(`PASS: ${fixture.name}`);
   }
+  if (process.env.INSPECTOR_CONTEXT_RESULT)
+    await writeFile(
+      process.env.INSPECTOR_CONTEXT_RESULT,
+      JSON.stringify(evidence, null, 2),
+    );
 } finally {
   engine.dispose();
   await rm(root, { recursive: true, force: true });

@@ -73,7 +73,11 @@ test("scanner includes Git-ignored entries, avoids symlink traversal and respect
     await writeFile(path.join(root, ".git", "config"), "12345");
     await writeFile(path.join(root, "hello 世界.txt"), "hello");
     await writeFile(path.join(root, ".gitignore"), "*");
-    await symlink(os.tmpdir(), path.join(root, "outside"));
+    await symlink(
+      os.tmpdir(),
+      path.join(root, "outside"),
+      process.platform === "win32" ? "junction" : "dir",
+    );
     const result = await scan(
       root,
       100,
@@ -154,6 +158,7 @@ test("active scan cancellation stops discovery and unreadable directories stay u
     assert(result.partial);
     assert.equal(result.entries.length, 250);
     assert(result.issues.some((issue) => issue.includes("cancelled")));
+    if (process.platform === "win32") return; // POSIX mode bits do not model Windows ACLs.
     const { chmod } = await import("node:fs/promises");
     const locked = path.join(root, "unreadable");
     await mkdir(locked);

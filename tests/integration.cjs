@@ -24,7 +24,20 @@ exports.run = async () => {
   const index = initial.entries.findIndex((e) => e.path === "assets/logo.svg");
   assert(index >= 0);
   assert.equal(initial.excluded[index], false);
-  const document = await vscode.workspace.openTextDocument(initial.ignore);
+  const alias = path.join(
+    process.env.INSPECTOR_RESULT_DIR,
+    `alias space 世界-${Date.now()}`,
+  );
+  await fs.symlink(
+    initial.context,
+    alias,
+    process.platform === "win32" ? "junction" : "dir",
+  );
+  const document = await vscode.workspace.openTextDocument(
+    vscode.Uri.file(path.join(alias, ".dockerignore")),
+  );
+  assert(initial.entries.every((entry) => !entry.path.includes("\\")));
+
   const original = document.getText();
   const edit = new vscode.WorkspaceEdit();
   edit.replace(
@@ -54,8 +67,11 @@ exports.run = async () => {
   await until(
     () => !api.isBusy() && api.getSnapshot()?.error?.includes("Line 1"),
   );
+  await vscode.window.showTextDocument(document);
   await vscode.commands.executeCommand("undo");
-  await until(() => !api.isBusy() && !api.getSnapshot()?.error);
+  await until(
+    () => !api.isBusy() && !!api.getSnapshot() && !api.getSnapshot().error,
+  );
   const saved = new vscode.WorkspaceEdit();
   saved.insert(document.uri, new vscode.Position(0, 0), "*.svg\n");
   await vscode.workspace.applyEdit(saved);
@@ -98,7 +114,8 @@ exports.run = async () => {
           "installed VSIX activation",
           "bundled WASM worker",
           "example scan",
-          "unsaved draft difference",
+          "unsaved draft difference through directory alias",
+          "portable slash-separated context paths",
           "undo restores result",
           "invalid rule line",
           "save baseline",

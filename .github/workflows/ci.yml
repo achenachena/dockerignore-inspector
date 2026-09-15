@@ -22,7 +22,14 @@ jobs:
       - run: npm run build
       - run: npm run lint && npm run typecheck && npm test && npm run test:engine
       - run: cd engine && go test github.com/moby/patternmatcher github.com/moby/patternmatcher/ignorefile
+      - run: node scripts/matcher-parity.mjs
       - run: npm run test:docker
+        env:
+          INSPECTOR_CONTEXT_RESULT: dist/linux-context.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-context-results
+          path: dist/linux-context.json
       - run: npm run package
       - run: xvfb-run -a npm run test:integration
       - uses: actions/upload-artifact@v4
@@ -32,3 +39,57 @@ jobs:
             dist/*.vsix
             dist/SHA256SUMS
             .test-work/integration-result.json
+
+  windows:
+    runs-on: windows-2025
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.5"
+          cache-dependency-path: engine/go.sum
+      - run: npm ci
+      - run: npm run build
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run test:engine
+      - run: node scripts/matcher-parity.mjs
+      - run: node scripts/docker-test.mjs --inspect-only
+        env:
+          INSPECTOR_CONTEXT_RESULT: dist/windows-context.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-context-results
+          path: dist/windows-context.json
+      - run: npm run package
+      - run: npm run test:integration
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-preview-validation
+          path: |
+            dist/*.vsix
+            dist/SHA256SUMS
+            .test-work/integration-result.json
+
+  compare-contexts:
+    needs: [validate, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: "*-context-results"
+          merge-multiple: true
+          path: results
+      - name: Compare Windows inventory predictions against Linux Docker COPY results
+        run: |
+          node -e "const fs=require('fs');require('assert/strict').deepEqual(JSON.parse(fs.readFileSync('results/windows-context.json')),JSON.parse(fs.readFileSync('results/linux-context.json')));console.log('PASS: Windows local fixture predictions equal Linux Docker COPY sets');"
