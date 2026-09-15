@@ -1,6 +1,6 @@
 # Validation report
 
-Date: 2026-09-15. Status: locally installable preview; not ready for a public compatibility claim until Docker differential checks pass.
+Date: 2026-09-15. Status: installable preview with passing macOS checks and Linux CI, including six real Docker differential fixtures.
 
 ## Environment
 
@@ -27,6 +27,18 @@ The UI check used an isolated copy of the installed VS Code application so the u
 
 The integration harness loads only a tiny test harness as a development extension; the product under test is the installed VSIX. Local test runs do not constitute a GitHub Actions run.
 
+## GitHub Actions validation
+
+[Validation run 34927622980](https://github.com/achenachena/dockerignore-inspector/actions/runs/34927622980) passed on 2026-09-15 for source commit `d280fc795097ba1a2feabf9ea4df28cb46b1ccb9`.
+
+- Ubuntu 24.04, linux/amd64; Docker client and engine 28.0.4; Go 1.24.5; VS Code 1.137.0.
+- Passed dependency installation, build, lint, typecheck, all core and upstream tests, package creation, and installation/integration under Xvfb.
+- All six actual COPY file-set comparisons passed: no effective rules, negations and ancestors, excluded build control files, dedicated-file precedence, empty dedicated-file precedence, and BOM/CRLF normalization.
+- Installed-package integration also checks rapid consecutive draft edits and rejects stale results.
+- The workflow provides the VSIX, SHA256SUMS, and integration result as an Actions artifact. This is not a Marketplace publication or GitHub Release.
+
+The local Docker Desktop startup issue remains an environment issue; it no longer blocks the recorded Linux Docker comparison. These results cover the supplied fixtures and do not claim every possible Docker build configuration is supported.
+
 ## Measured performance
 
 On Apple M4, Node.js 22.18.0: worker startup approximately 26 ms; 100,000 synthetic paths with three rules matched in approximately 660 ms. Reproduce with `node scripts/benchmark.mjs` after building.
@@ -35,11 +47,10 @@ These measurements exclude disk enumeration and Webview rendering, use a small r
 
 ## Not completed / release gates
 
-- **Real Docker/BuildKit comparison:** `npm run test:docker` could not connect to the local daemon. Docker Desktop startup logged `opening tray: starting electron: sending file descriptors: broken pipe`; a direct backend launch also did not provide a working daemon and was stopped. The FROM scratch differential runner and Linux CI step are supplied, but have not passed here. Do not advertise full Docker compatibility until this runs successfully.
-- **Other environments:** Linux CI results are recorded in GitHub Actions; the local evidence below was collected on macOS. Windows and remote/virtual workspaces are blocked. macOS Intel and the declared minimum VS Code version have not been installed and tested.
+- **Other environments:** macOS ARM64 and Linux x64 have been tested. Windows and remote/virtual workspaces are blocked. macOS Intel and the declared minimum VS Code version have not been installed and tested.
 - **Full network-isolated editor run:** core behavior was tested with network calls disabled, and the extension contains no runtime networking. VS Code itself was not disconnected from the network during UI checks.
 - **Large-directory UI stress:** scan cancellation and worker termination are tested independently; a large physical directory was not driven through the full native panel under sustained typing.
-- **Distribution:** Source is published at https://github.com/achenachena/dockerignore-inspector. No GitHub Release or Marketplace listing has been created. `local-preview` is local package metadata, not an actual publisher account. Public identity, links, name availability and authorization remain release steps.
+- **Distribution:** Source is published at https://github.com/achenachena/dockerignore-inspector. No GitHub Release or Marketplace listing has been created. `local-preview` is local package metadata, not an actual publisher account. A real Marketplace publisher identity, store name availability, and Marketplace authorization remain release steps.
 
 ## Behavioral limits
 
