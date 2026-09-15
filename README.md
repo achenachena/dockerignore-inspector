@@ -10,7 +10,7 @@ A local VS Code Desktop extension for debugging ignore rules. No Docker daemon, 
 
 ## Install the preview
 
-GitHub Release creation is pending. The verified VSIX and checksum are prepared locally; build from source using the development instructions until the release is available.
+[Download the Preview VSIX](https://github.com/achenachena/dockerignore-inspector/releases/download/v0.1.0/dockerignore-inspector-0.1.0.vsix) · [Release notes and checksum](https://github.com/achenachena/dockerignore-inspector/releases/tag/v0.1.0)
 
 Supports trusted local VS Code Desktop workspaces on macOS and Linux. Marketplace publication is pending.
 

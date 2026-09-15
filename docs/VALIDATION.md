@@ -50,7 +50,7 @@ These measurements exclude disk enumeration and Webview rendering, use a small r
 - **Other environments:** macOS ARM64 and Linux x64 have been tested. Windows and remote/virtual workspaces are blocked. macOS Intel and the declared minimum VS Code version have not been installed and tested.
 - **Full network-isolated editor run:** core behavior was tested with network calls disabled, and the extension contains no runtime networking. VS Code itself was not disconnected from the network during UI checks.
 - **Larger UI stress:** a 16,953-entry physical dependency directory was exercised through the native panel (see below). Sustained typing with 100,000 entries or large rule sets remains unverified.
-- **Distribution:** Source is published at https://github.com/achenachena/dockerignore-inspector. A v0.1.0 Preview VSIX and checksum are prepared locally; GitHub Release creation and Marketplace publication are pending. The user supplied the registered Marketplace publisher ID `achenachen`; the package now uses that identity. Marketplace upload and store validation remain pending.
+- **Distribution:** Source is published at https://github.com/achenachena/dockerignore-inspector. The v0.1.0 Preview VSIX and checksum are available at https://github.com/achenachena/dockerignore-inspector/releases/tag/v0.1.0. Marketplace publication is pending. The user supplied the registered Marketplace publisher ID `achenachen`; the package now uses that identity. Marketplace upload and store validation remain pending.
 
 ## Behavioral limits
 
@@ -69,3 +69,5 @@ On macOS ARM64 with VS Code 1.137.0, the installed package was tested in an isol
 - A regression test exercises the shipped webview script with a minimal DOM: error after selection, resize, scroll, keyboard and filter events, followed by a fresh snapshot and selection. This is not a browser rendering test.
 
 This does not establish full UI performance for 100,000 entries, large rule sets, or every filesystem. The earlier synthetic benchmark remains separate evidence.
+
+The release commit `e754706` passed Linux CI, including six real Docker differential fixtures and installed VSIX integration: https://github.com/achenachena/dockerignore-inspector/actions/runs/34930318597. The packaged documentation records the pre-upload state; the repository README now links to the published assets.
