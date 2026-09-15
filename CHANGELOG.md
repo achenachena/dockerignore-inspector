@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 — Local preview
+## 0.1.0 — Preview
 
 - Inspect one local build context with an explicitly selected Dockerfile.
 - Use Dockerfile-specific ignore precedence and pinned Moby matching.
@@ -9,4 +9,6 @@
 - Search, filter, inspect logical sizes, and cancel bounded scans.
 - Include a disposable example and offline WASM runtime.
 
-Not yet published to GitHub Releases or VS Code Marketplace.
+- Clear stale tree state on inspection errors and safely recover on refresh.
+- Retain a right-clicked Dockerfile while selecting the build context.
+- Prepare a Preview VSIX and checksum for GitHub Releases.

@@ -10,7 +10,9 @@ A local VS Code Desktop extension for debugging ignore rules. No Docker daemon, 
 
 ## Install the preview
 
-Source: [achenachena/dockerignore-inspector](https://github.com/achenachena/dockerignore-inspector). This preview is not yet published on Marketplace. Build the VSIX using the development instructions, or use the locally supplied `dist/dockerignore-inspector-0.1.0.vsix`:
+GitHub Release creation is pending. The verified VSIX and checksum are prepared locally; build from source using the development instructions until the release is available.
+
+Supports trusted local VS Code Desktop workspaces on macOS and Linux. Marketplace publication is pending.
 
 1. In VS Code, run **Extensions: Install from VSIX…**.
 2. Select the VSIX, then reload if prompted.
@@ -20,7 +22,7 @@ The extension uses publisher ID `achenachen`. Marketplace publication is still p
 
 ## Try it in three steps
 
-1. Run **Dockerignore: Inspect Build Context**. Select the context directory, then the Dockerfile you actually build with. These are separate choices.
+1. Run **Dockerignore: Inspect Build Context**. Select the context directory, then the Dockerfile you actually build with. These are separate choices. You can also right-click a Dockerfile and select the command; that file is retained while you choose the build context.
 2. Select a file in the tree. Follow the effective rule changes and click a rule to jump to its line.
 3. Edit the active ignore file without saving. The **Draft impact** panel compares the draft with the saved rules. Undo to restore the previous result.
 

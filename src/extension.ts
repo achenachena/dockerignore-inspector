@@ -142,17 +142,22 @@ export function activate(extension: vscode.ExtensionContext) {
       await send({ type: "error", message: String(error) });
     }
   }
-  async function chooseContext() {
+  async function chooseContext(preselectedDockerfile?: string) {
     const picked = await vscode.window.showOpenDialog({
       canSelectFolders: true,
       canSelectFiles: false,
       canSelectMany: false,
       title: "Select the Docker build context directory",
-      defaultUri: vscode.workspace.workspaceFolders?.[0]?.uri,
+      defaultUri: preselectedDockerfile
+        ? (vscode.workspace.getWorkspaceFolder(
+            vscode.Uri.file(preselectedDockerfile),
+          )?.uri ?? vscode.Uri.file(path.dirname(preselectedDockerfile)))
+        : vscode.workspace.workspaceFolders?.[0]?.uri,
     });
     if (!picked?.[0]) return;
     const context = await fs.realpath(picked[0].fsPath);
-    const dockerfile = await chooseDockerfile(context);
+    const dockerfile =
+      preselectedDockerfile ?? (await chooseDockerfile(context));
     if (!dockerfile) return;
     stop();
     selection = { context, dockerfile };
@@ -170,6 +175,21 @@ export function activate(extension: vscode.ExtensionContext) {
       defaultUri: vscode.Uri.file(context),
     });
     return picked?.[0] ? fs.realpath(picked[0].fsPath) : undefined;
+  }
+  async function inspect(uri?: vscode.Uri) {
+    if (!supported()) return;
+    await show();
+    if (
+      uri?.scheme === "file" &&
+      /Dockerfile/i.test(path.basename(uri.fsPath)) &&
+      !uri.fsPath.endsWith(".dockerignore")
+    ) {
+      try {
+        await chooseContext(await fs.realpath(uri.fsPath));
+      } catch (error) {
+        await send({ type: "error", message: String(error) });
+      }
+    }
   }
   async function show() {
     if (!supported()) return;
@@ -366,7 +386,7 @@ export function activate(extension: vscode.ExtensionContext) {
     }, 250);
   }
   extension.subscriptions.push(
-    vscode.commands.registerCommand("dockerignore.inspect", show),
+    vscode.commands.registerCommand("dockerignore.inspect", inspect),
     vscode.commands.registerCommand("dockerignore.example", example),
     vscode.workspace.onDidChangeTextDocument((event) => {
       if (event.document.uri.fsPath === snapshot?.ignore) schedule();

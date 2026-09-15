@@ -49,11 +49,23 @@ These measurements exclude disk enumeration and Webview rendering, use a small r
 
 - **Other environments:** macOS ARM64 and Linux x64 have been tested. Windows and remote/virtual workspaces are blocked. macOS Intel and the declared minimum VS Code version have not been installed and tested.
 - **Full network-isolated editor run:** core behavior was tested with network calls disabled, and the extension contains no runtime networking. VS Code itself was not disconnected from the network during UI checks.
-- **Large-directory UI stress:** scan cancellation and worker termination are tested independently; a large physical directory was not driven through the full native panel under sustained typing.
-- **Distribution:** Source is published at https://github.com/achenachena/dockerignore-inspector. No GitHub Release or Marketplace listing has been created. The user supplied the registered Marketplace publisher ID `achenachen`; the package now uses that identity. Marketplace upload and store validation remain pending.
+- **Larger UI stress:** a 16,953-entry physical dependency directory was exercised through the native panel (see below). Sustained typing with 100,000 entries or large rule sets remains unverified.
+- **Distribution:** Source is published at https://github.com/achenachena/dockerignore-inspector. A v0.1.0 Preview VSIX and checksum are prepared locally; GitHub Release creation and Marketplace publication are pending. The user supplied the registered Marketplace publisher ID `achenachen`; the package now uses that identity. Marketplace upload and store validation remain pending.
 
 ## Behavioral limits
 
 Only logical regular-file sizes are totaled. Symlink targets and unsupported entries are not sized. Directory totals are descendants' included bytes; partial totals are labeled. Changes to file contents after scanning need Refresh to update their sizes. Rule editing reuses that metadata snapshot.
 
 Cancellation leaves clearly labeled stale previous results; it does not silently present them as a completed fresh scan. Invalid rules suppress totals and comparison. Rule traces show effective state transitions rather than every redundant matching pattern.
+
+## Pre-release interaction review
+
+On macOS ARM64 with VS Code 1.137.0, the installed package was tested in an isolated profile against a disposable copy of this project's real node_modules directory (16,953 filesystem entries).
+
+- Right-clicking Dockerfile retained that file and asked only for the build context.
+- First scan reported 671 ms. Including dependencies through unsaved rules displayed approximately 133.6 MB of added logical size. Subsequent edits returned to two included files; rule recalculation reported 127–129 ms. These timings are single observations, not a performance guarantee.
+- Cancelling an active scan displayed the stale-results notice; refreshing recovered (774 ms observed).
+- Temporarily renaming Dockerfile produced an error with zero displayed rows. Layout and keyboard interaction did not resurrect stale rows. Restoring the file and refreshing recovered all 16,953 entries (861 ms observed).
+- A regression test exercises the shipped webview script with a minimal DOM: error after selection, resize, scroll, keyboard and filter events, followed by a fresh snapshot and selection. This is not a browser rendering test.
+
+This does not establish full UI performance for 100,000 entries, large rule sets, or every filesystem. The earlier synthetic benchmark remains separate evidence.

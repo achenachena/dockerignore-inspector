@@ -104,6 +104,7 @@ function filter() {
   rows();
 }
 function choose(entry) {
+  if (!snapshot || !snapshot.entries.includes(entry)) return;
   selected = entry.path;
   rows();
   const i = snapshot.entries.indexOf(entry);
@@ -146,6 +147,10 @@ function choose(entry) {
   }
 }
 function rows() {
+  if (!snapshot) {
+    $("rows").replaceChildren();
+    return;
+  }
   const start = Math.max(0, Math.floor($("tree").scrollTop / rowHeight) - 6);
   $("rows").style.transform = `translateY(${start * rowHeight}px)`;
   const fragment = document.createDocumentFragment();
@@ -202,7 +207,7 @@ function rows() {
 }
 $("tree").onscroll = rows;
 $("tree").onkeydown = (event) => {
-  if (!visible.length) return;
+  if (!snapshot || !visible.length) return;
   let index = visible.findIndex(({ entry }) => entry.path === selected);
   if (index < 0) index = 0;
   if (
@@ -252,6 +257,7 @@ $("filter").onchange = () => {
   filter();
 };
 function changes() {
+  if (!snapshot) return;
   const box = $("changes");
   box.replaceChildren();
   if (snapshot.error) {
@@ -342,6 +348,18 @@ window.addEventListener("message", ({ data }) => {
   if (data.type === "error") {
     busy = false;
     snapshot = undefined;
+    visible = [];
+    selected = "";
+    collapsed.clear();
+    aggregates.clear();
+    changePage = 0;
+    $("tree").scrollTop = 0;
+    $("tree").hidden = true;
+    $("tree").setAttribute("aria-busy", "false");
+    $("results").textContent = "0 shown";
+    $("empty").hidden = false;
+    $("empty").textContent = "No current results. Refresh to try again.";
+    $("edit").disabled = true;
     $("issues").textContent = data.message;
     $("status").textContent =
       "Unable to inspect this context. Check the paths and refresh.";
