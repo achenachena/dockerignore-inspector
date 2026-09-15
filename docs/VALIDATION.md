@@ -71,3 +71,7 @@ On macOS ARM64 with VS Code 1.137.0, the installed package was tested in an isol
 This does not establish full UI performance for 100,000 entries, large rule sets, or every filesystem. The earlier synthetic benchmark remains separate evidence.
 
 The release commit `e754706` passed Linux CI, including six real Docker differential fixtures and installed VSIX integration: https://github.com/achenachena/dockerignore-inspector/actions/runs/34930318597. The packaged documentation records the pre-upload state; the repository README now links to the published assets.
+
+## Windows candidate
+
+Windows compatibility preparation and final hosted CI results are recorded in [WINDOWS.md](WINDOWS.md). Windows, Linux, and cross-platform fixture comparison jobs passed for commit `ec08779`. This does not remove the Windows production gate: Docker Desktop Linux-container end-to-end validation on Windows 10/11 remains unavailable. WSL, Remote SSH and Dev Containers restrictions remain in force.

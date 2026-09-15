@@ -50,3 +50,31 @@ npm run test:integration
 `test:docker` requires the daemon to report `linux` and uses only generated fixture Dockerfiles (`FROM scratch; COPY . /`). It does not build a user's project. The temporary context includes spaces and Unicode. It compares actual exported files with the candidate's Windows scan and WASM predictions, and fails on a mismatch.
 
 Record Windows, Docker Desktop, Docker Engine/buildx and VS Code versions, the command output, and the final VSIX checksum. Check directory selection, rule navigation, opening files, cancellation and refresh in a local desktop window. Test a different drive and Windows ACL failures separately. Only after these pass should the production Windows gate and support claims be changed.
+
+## Recorded result — 2026-09-15
+
+Code commit: `ec08779d1a8eabce5cd55cf7f7433292eae562b4`.
+[Final CI run](https://github.com/achenachena/dockerignore-inspector/actions/runs/35027863656): all three jobs passed (`windows`, `validate`, `compare-contexts`).
+
+| Check | Actual result |
+| --- | --- |
+| Windows Server 2025 x64 build, lint, TypeScript | Passed |
+| Windows Node tests | 10 passed; 1 POSIX permission subtest explicitly skipped |
+| Native Windows Go tests | Passed |
+| Native Windows Go / bundled WASM parity | 9 fixtures passed, including effective-rule explanations |
+| Windows local scans versus Linux Docker-validated COPY file sets | All 9 fixtures agreed |
+| Windows final VSIX installation | Passed in an empty extension directory |
+| Windows installed VS Code 1.137.0 core flow | Activation, WASM, example, junction-alias drafts, undo, invalid rule, save, and 12 successive updates passed |
+| Linux final VSIX integration and actual Docker differential tests | Passed |
+| macOS regression checks during development | Node tests, native/WASM parity, and installed VSIX integration passed |
+| Windows Desktop / Docker Desktop Linux-container end-to-end test | Not run: no test machine available |
+
+The Windows CI artifact `windows-preview-validation` contains the exact installed VSIX, `SHA256SUMS`, and the integration result. The downloaded artifact's checksum and private-file exclusions were independently checked. Its SHA-256 is:
+
+```text
+a791017ee07b543b2934c28fd0b738db8d7699158486558bbe5585b22ccfcede
+```
+
+Two Windows test issues were resolved before this final run: the downloaded VS Code used a versioned resource directory for its CLI, and the editor preserved CRLF while an old assertion assumed LF. The final assertion compares the snapshot with the editor's exact final text and separately verifies normalized rule content.
+
+**Decision:** keep the production Windows gate. Hosted Windows Server CI proves the candidate's automated paths and core flow, but does not prove Windows 10/11 Docker Desktop context transfer, Windows ACL behavior, manual native UI interactions, Windows ARM64, or the declared minimum VS Code version. No released GitHub asset or Marketplace package was replaced by this validation candidate.
