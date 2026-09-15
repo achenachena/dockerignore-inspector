@@ -16,7 +16,7 @@ A local VS Code Desktop extension for debugging ignore rules. No Docker daemon, 
 
 [Install from Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=achenachen.dockerignore-inspector).
 
-1. Open the listing in **VS Code 1.137.0 or later** and choose **Install** for the regular release channel. If Marketplace still shows only the pre-release version while the uploaded regular release is being verified, use the matching 0.2.0 VSIX below.
+1. Open the listing in **VS Code 1.137.0 or later** and choose **Install** for the regular release channel.
 2. Run **Dockerignore: Open Example**.
 3. Remove `!` from `!assets/logo.svg` without saving, inspect the change, then undo.
 
