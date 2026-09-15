@@ -1,6 +1,19 @@
 # Validation records
 
-Versioned evidence from September 15, 2026. These are historical results, not new checks performed during documentation maintenance. For open interaction issues, see [the 0.1.1 audit](QA_0.1.1.md); its cancellation issue was fixed in 0.2.0. Windows limitations remain documented in [WINDOWS.md](WINDOWS.md).
+Versioned evidence from September 15, 2026. Historical checks apply to the stated version and artifacts. The [0.1.1 audit](QA_0.1.1.md) records earlier findings; cancellation was fixed in 0.2.0 and its two selection issues in 0.2.1. Windows limitations remain in [WINDOWS.md](WINDOWS.md).
+
+## 0.2.1 interaction patch
+
+Source commit: `f79636b`. Date: September 15, 2026.
+
+- Local lint, TypeScript and Node tests passed: 15 passed, one Windows-only skip. The four new webview tests failed before the fix and passed afterward.
+- An isolated browser harness using the release webview script passed repeated same-file selection, out-of-order A/B/A responses, initial Down Arrow and subsequent Up/Down checks. This harness is not a full native VS Code UI test.
+- Both final macOS ARM64 and Linux x64 VSIX files passed isolated installation and core flows on VS Code 1.137.0: activation, WASM, example scan, unsaved draft through an alias, Undo, invalid rules, save and rapid edits. A macOS background-window Undo timeout passed on retry with focus restored.
+- Cancellation lifecycle tests and the real-timer host harness passed. Late explanations after update, Cancel and errors are covered by the webview tests.
+- [CI](https://github.com/achenachena/dockerignore-inspector/actions/runs/35036488759) passed all existing Linux, Windows validation and Docker comparison jobs. This does not open Windows support.
+- Both deliverables contain version 0.2.1, publisher `achenachen`, the intended platform, runtime files, the concise README and screenshot. Neither manifest contains the pre-release property. The webview JavaScript in both packages matches the tested source. Checksums are attached to the release.
+
+The empty panel already exposes **Select context** and **Open example** and was left unchanged. No features or supported platforms were added.
 
 ## 0.2.0 release-channel verification
 
