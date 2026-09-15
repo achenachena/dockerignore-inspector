@@ -197,11 +197,11 @@ export class Engine {
     paths: string[],
     explain = "",
   ): Promise<MatchResult> {
+    await this.ready;
     if (process.platform === "win32") {
       const error = windowsRuleError(text);
       if (error) return { excluded: [], reasons: [], error };
     }
-    await this.ready;
     return new Promise((resolve, reject) => {
       const id = ++this.next;
       this.pending.set(id, { resolve, reject });
