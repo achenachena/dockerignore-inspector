@@ -1,0 +1,34 @@
+name: Validate preview
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.5"
+          cache-dependency-path: engine/go.sum
+      - run: npm ci
+      - run: npm run build
+      - run: npm run lint && npm run typecheck && npm test && npm run test:engine
+      - run: cd engine && go test github.com/moby/patternmatcher github.com/moby/patternmatcher/ignorefile
+      - run: npm run test:docker
+      - run: npm run package
+      - run: xvfb-run -a npm run test:integration
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dockerignore-inspector-preview
+          path: |
+            dist/*.vsix
+            dist/SHA256SUMS
+            .test-work/integration-result.json

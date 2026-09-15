@@ -1,0 +1,4 @@
+# This file replaces the root .dockerignore for build.Dockerfile.
+*
+!assets
+!assets/**

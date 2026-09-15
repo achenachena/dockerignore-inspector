@@ -1,0 +1,16 @@
+**/*
+!package.json
+!README.md
+!CHANGELOG.md
+!LICENSE
+!PRIVACY.md
+!THIRD_PARTY_NOTICES.md
+!dist/extension.cjs
+!dist/worker.cjs
+!dist/engine.wasm
+!dist/wasm_exec.cjs
+!webview/**
+!examples/**
+!docs/images/**
+!docs/*.md
+docs/PRODUCT.md

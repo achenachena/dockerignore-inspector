@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src {{csp}} 'nonce-{{nonce}}'; script-src 'nonce-{{nonce}}';"
+    />
+    <link rel="stylesheet" href="{{css}}" />
+    <title>Dockerignore Inspector</title>
+  </head>
+  <body>
+    <header>
+      <div class="eyebrow">LOCAL BUILD TOOLS <span>01 / INSPECTOR</span></div>
+      <div class="title">
+        <h1>Know what goes in.</h1>
+        <span class="pill">OFFLINE · NO TELEMETRY</span>
+      </div>
+      <p class="subtitle">
+        Explore your build context. Trace a rule. Preview the change.
+      </p>
+    </header>
+    <nav aria-label="Context actions">
+      <button id="context">Select context</button
+      ><button id="dockerfile">Select Dockerfile</button
+      ><button id="edit">Edit rules</button><button id="refresh">Refresh</button
+      ><button id="cancel" disabled>Cancel</button
+      ><button id="example" class="quiet">Open example ↗</button>
+    </nav>
+    <section id="paths" aria-label="Selected paths"></section>
+    <div id="status" role="status" aria-live="polite">
+      Choose a build context and Dockerfile, or open the example to begin.
+    </div>
+    <section class="metrics" aria-label="Context summary">
+      <div><span>INCLUDED FILES</span><strong id="count">—</strong></div>
+      <div><span>LOGICAL SIZE</span><strong id="size">—</strong></div>
+      <div><span>PREVIEW</span><strong id="mode">No context</strong></div>
+    </section>
+    <p class="disclaimer">
+      Logical file size after filtering. This is not image size or measured
+      transfer size. Symlink targets are not traversed.
+    </p>
+    <div id="issues" role="alert"></div>
+    <main>
+      <section class="browser">
+        <div class="section-heading">
+          <h2>Context files</h2>
+          <span id="results"></span>
+        </div>
+        <div class="filters">
+          <input
+            id="search"
+            type="search"
+            aria-label="Search relative paths"
+            placeholder="Search a filename or path…"
+          /><select id="filter" aria-label="Filter file status">
+            <option value="all">All states</option>
+            <option value="included">Included</option>
+            <option value="excluded">Excluded</option>
+            <option value="changed">Changed in draft</option>
+          </select>
+        </div>
+        <div class="columns"><span>PATH</span><span>STATE / SIZE</span></div>
+        <div
+          id="tree"
+          role="tree"
+          aria-label="Build context files"
+          tabindex="0"
+        >
+          <div id="spacer"></div>
+          <div id="rows"></div>
+        </div>
+        <div id="empty">
+          Your context will appear here.<br />Try the example for a guided
+          starting point.
+        </div>
+      </section>
+      <aside>
+        <section>
+          <div class="section-heading">
+            <h2>Why this file?</h2>
+            <span>RULE TRACE</span>
+          </div>
+          <div id="explanation">
+            Select a file to inspect its effective rules.
+          </div>
+        </section>
+        <section>
+          <div class="section-heading">
+            <h2>Draft impact</h2>
+            <span>VS. SAVED</span>
+          </div>
+          <div id="changes">
+            Edit the active ignore file without saving to preview additions and
+            exclusions.
+          </div>
+        </section>
+      </aside>
+    </main>
+    <footer>
+      Dockerignore Inspector
+      <span>Independent community tool · Preview 0.1.0</span>
+    </footer>
+    <script nonce="{{nonce}}" src="{{js}}"></script>
+  </body>
+</html>

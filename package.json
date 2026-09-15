@@ -1,0 +1,108 @@
+{
+  "name": "dockerignore-inspector",
+  "displayName": "Dockerignore Inspector",
+  "description": "Inspect build context files, explain ignore rules, and preview unsaved changes locally.",
+  "version": "0.1.0",
+  "publisher": "local-preview",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.96.0",
+    "node": ">=22"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "dockerignore",
+    "docker",
+    "build context"
+  ],
+  "main": "./dist/extension.cjs",
+  "extensionKind": [
+    "ui"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "Inspect files only in trusted local workspaces."
+    },
+    "virtualWorkspaces": {
+      "supported": false
+    }
+  },
+  "activationEvents": [
+    "onCommand:dockerignore.inspect"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "dockerignore.inspect",
+        "title": "Dockerignore: Inspect Build Context"
+      },
+      {
+        "command": "dockerignore.example",
+        "title": "Dockerignore: Open Example"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "dockerignore.inspect",
+          "when": "resourceFilename =~ /Dockerfile|dockerignore/",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "dockerignore.inspect",
+          "when": "resourceFilename =~ /Dockerfile|dockerignore/",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Dockerignore Inspector",
+      "properties": {
+        "dockerignore.maxEntries": {
+          "type": "number",
+          "default": 100000,
+          "minimum": 100,
+          "maximum": 1000000,
+          "description": "Maximum scanned filesystem entries. Reaching the limit produces partial results."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src webview scripts tests",
+    "test": "node --test tests/*.test.mjs",
+    "test:engine": "cd engine && go test ./...",
+    "test:docker": "node scripts/docker-test.mjs",
+    "test:integration": "node scripts/integration.mjs",
+    "package": "npm run build && vsce package --allow-missing-repository --no-rewrite-relative-links --out dist/dockerignore-inspector-0.1.0.vsix && node scripts/checksum.mjs",
+    "vscode:prepublish": "npm run typecheck"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.2",
+    "@types/vscode": "1.96.0",
+    "@vscode/test-electron": "2.5.2",
+    "@vscode/vsce": "3.6.0",
+    "esbuild": "0.25.0",
+    "eslint": "9.39.1",
+    "prettier": "3.6.2",
+    "typescript": "5.7.3",
+    "typescript-eslint": "8.48.1"
+  },
+  "icon": "webview/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/achenachena/dockerignore-inspector.git"
+  },
+  "bugs": {
+    "url": "https://github.com/achenachena/dockerignore-inspector/issues"
+  },
+  "homepage": "https://github.com/achenachena/dockerignore-inspector#readme"
+}

@@ -1,0 +1,5 @@
+# Try removing the ! below without saving, then undo.
+node_modules
+*.log
+assets/*
+!assets/logo.svg

@@ -1,0 +1,24 @@
+node_modules/
+dist/
+.test-work/
+.DS_Store
+*.log
+!examples/context/node_modules/
+!examples/context/node_modules/**
+!examples/context/debug.log
+
+# Local planning and agent instructions
+dockerignore-extension-codex-handoff.md
+AGENTS.md
+docs/PRODUCT.md
+.codex/
+.agents/
+
+# Local credentials and generated artifacts
+.env
+.env.*
+*.pem
+*.key
+*.vsix
+.vscode-test/
+coverage/
